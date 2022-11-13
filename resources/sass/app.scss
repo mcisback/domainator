@@ -1,0 +1,50 @@
+// Fonts
+@import url('https://fonts.googleapis.com/css?family=Nunito');
+
+// Variables
+@import 'variables';
+
+// Bootstrap
+@import '~bootstrap/scss/bootstrap';
+
+// Font Awesome
+@import "~@fortawesome/fontawesome-free/scss/fontawesome.scss";
+@import "~@fortawesome/fontawesome-free/scss/solid.scss";
+@import "~@fortawesome/fontawesome-free/scss/brands.scss";
+@import "~@fortawesome/fontawesome-free/scss/regular.scss";
+
+$lpm-red: #940101;
+$form-switch-bg-red-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'><circle r='3' fill='#{$lpm-red}'/></svg>") !default;
+$form-switch-checked-bg-red-image:    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'><circle r='3' fill='#fff'/></svg>") !default;
+
+.form-check {
+    &.red &-input {
+        background-image: escape-svg($form-switch-bg-red-image);
+    }
+    &.red &-input:checked {
+        background-color: $lpm-red;
+        border-color: $lpm-red;
+        background-image: escape-svg($form-switch-checked-bg-red-image);
+    }
+    &.red &-input:focus {
+        border-color: $lpm-red;
+        outline: 0;
+        box-shadow: 0 0 $input-btn-focus-blur $input-btn-focus-width rgba($lpm-red, $input-btn-focus-color-opacity);
+
+    }
+}
+
+button[type="submit"], .btn-red {
+    background-color: #940101;
+    border-color: #940101;
+}
+
+button[type="submit"]:disabled, .btn-red:disabled {
+    background-color: #9a9a9a !important;
+    border-color: #9a9a9a !important;
+}
+
+button[type="submit"]:hover, .btn-red:hover {
+    background-color: #a5172f !important;
+    border-color: #a5172f !important;
+}
