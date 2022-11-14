@@ -26,8 +26,8 @@
 
 <style>
     #leftMenu {
-        background: rgb(192, 58, 118);
-        background: linear-gradient(0deg, rgb(192, 58, 118) 0%, rgb(148, 0, 0) 100%);
+        background: #6aa4dd;
+        background: linear-gradient(0deg, rgb(106, 164, 221) 0%, rgb(106, 164, 221) 100%);
         color: white;
         width: 25%;
         font-size: 1.5rem;

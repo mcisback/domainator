@@ -3,8 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\LpMachine\Helpers\TemplatesHelper;
-use App\LpMachine\Helpers\TranslationsHelper;
 use Illuminate\Http\Request;
 
 class ApiController extends Controller
@@ -22,61 +20,34 @@ class ApiController extends Controller
         ], 403);
     }
 
-    public function getTemplates(Request $request) {
-        $getContents = $request->get('getContents') ?? false;
+    public function checkDomain(Request $request) {
+        $domain = $request->get('domain');
 
-        return response()->json([
-            'success' => true,
-            'templates' => TranslationsHelper::getTemplates($getContents),
-        ]);
-    }
+        // Creating default configured client
+        $whois = \Iodev\Whois\Factory::get()->createWhois();
 
-    public function getTemplate(Request $request) {
-        return response()->json([
-            'success' => true,
-            'templates' => TranslationsHelper::getTemplates(),
-        ]);
-    }
-
-    public function getTemplateFields(Request $request) {
-        $template = $request->get('template');
-
-        try {
-            $fields = TemplatesHelper::getTemplateFields($template);
-        } catch (\Exception $e) {
+        // Checking availability
+        if ($whois->isDomainAvailable($domain)) {
             return response()->json([
-                'success' => false,
-                'templates' => $template,
-                'message' => $e->getMessage(),
-                'line' => $e->getLine(),
-            ], 500);
+                'success' => true,
+                'isAvailable' => true,
+                'domain' => $domain,
+            ]);
         }
 
         return response()->json([
             'success' => true,
-            'fields' => $fields,
+            'isAvailable' => false,
+            'domain' => $domain,
         ]);
     }
 
-    public function getLocalesByTemplate(Request $request) {
-        $template = $request->get('template');
-
-        return response()->json([
-            'success' => true,
-            'template' => $template,
-            'locales' => TranslationsHelper::getLocalesByTemplate($template),
-        ]);
-    }
-
-    public function getTranslations(Request $request) {
-        $template = $request->get('template');
-        $locale = $request->get('locale');
-
-        return response()->json([
-            'success' => true,
-            'template' => $template,
-            'locales' => $locale,
-            'translations' => TranslationsHelper::getTranslations($template, $locale),
-        ]);
-    }
+//    public function getTemplates(Request $request) {
+//        $getContents = $request->get('getContents') ?? false;
+//
+//        return response()->json([
+//            'success' => true,
+//            'templates' => TranslationsHelper::getTemplates($getContents),
+//        ]);
+//    }
 }

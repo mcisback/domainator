@@ -13,7 +13,7 @@
 </script>
 
 <div id="mainMenu" class="px-5">
-    <div class="row align-items-center">
+    <div class="row align-items-center p-4">
 
         <div class="col-3">
             <div class="row">
@@ -26,7 +26,7 @@
             </div>
         </div>
         <div class="col-6 d-flex justify-content-center align-items-center">
-            <div style="width: 50%;">
+            <div style="width: 25%;">
                 <img src="/img/logo-white1.png" alt="Logo" class="w-100">
             </div>
         </div>

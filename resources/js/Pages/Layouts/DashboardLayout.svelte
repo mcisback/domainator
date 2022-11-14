@@ -13,25 +13,11 @@
 
     const sections = [
         {
-            label: 'Generator',
+            label: 'Domain Request',
             route: 'dashboard.index',
-            faIcon: 'fa-solid fa-gears',
+            faIcon: 'fa-solid fa-globe',
             bgColor: '#d5ecfc',
-            permissions: ['generator.manage'],
-        },
-        {
-            label: 'Translations',
-            route: 'dashboard.translations.index',
-            faIcon: 'fa-solid fa-language',
-            bgColor: '#d5ecfc',
-            permissions: ['translations.manage'],
-        },
-        {
-            label: 'FTP Servers',
-            route: 'dashboard.ftpserver.index',
-            faIcon: 'fa-solid fa-server',
-            bgColor: '#d5ecfc',
-            permissions: ['ftpserver.manage'],
+            permissions: ['domains.request'],
         },
         {
             label: 'Users',
@@ -40,13 +26,6 @@
             bgColor: '#d5ecfc',
             permissions: ['users.manage'],
         },
-        // {
-        //     label: 'Fields',
-        //     route: 'dashboard.editor.index',
-        //     faIcon: 'fa-solid fa-pen-to-square',
-        //     bgColor: '#d5ecfc',
-        //     permissions: ['fields.manage'],
-        // }
     ]
 
     const currentUser = LaraUser(user)

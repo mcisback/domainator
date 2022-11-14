@@ -34,9 +34,6 @@ Route::group(['prefix' => '/dashboard', 'as' => 'dashboard.', 'middleware' => ['
     require_once __DIR__ . '/admin.php';
     require_once  __DIR__.'/dashboard.php';
 
-
-    Route::post('/generator', [\App\Http\Controllers\GeneratorController::class, 'store'])->name('generator');
-
 });
 
 

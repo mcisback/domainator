@@ -2,19 +2,35 @@
 
 namespace App\Http\Controllers;
 
-use App\LpMachine\Helpers\TranslationsHelper;
 use Illuminate\Http\Request;
 
-class TranslationsController extends Controller
+class WhoisController extends Controller
 {
+    public function __construct() {
+        return $this->middleware([
+            'auth:web',
+            'role:admin|staff',
+        ]);
+    }
+
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response|\Inertia\Response|\Inertia\ResponseFactory
+     * @return \Illuminate\Http\Response
+     */
+    public function checkDomain()
+    {
+        //
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
      */
     public function index()
     {
-        return Inertia('Dashboard/Translations');
+        //
     }
 
     /**
@@ -65,26 +81,11 @@ class TranslationsController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
+     * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $template)
+    public function update(Request $request, $id)
     {
-        $allTranslations = $request->get('allTranslations');
-        $locales = $request->get('locales');
-
-        $data = [];
-
-        foreach ($locales as $locale) {
-            TranslationsHelper::saveTranslations($template, $locale, $allTranslations[$locale]);
-
-            $data[$locale] = "Saved Translations for $locale";
-        }
-
-        return response()->json([
-            'success' => true,
-            'locales' => $locales,
-            'data' => $data,
-        ]);
+        //
     }
 
     /**
