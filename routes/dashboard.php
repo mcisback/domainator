@@ -21,6 +21,14 @@ Route::resource('users', \App\Http\Controllers\Admin\UserController::class)->onl
     'index', 'update', 'store', 'destroy',
 ]);
 
+Route::resource('sedoAccounts', \App\Http\Controllers\SedoAccountController::class)->only([
+    'index', 'update', 'store', 'destroy',
+]);
+
+Route::resource('domains', \App\Http\Controllers\DomainController::class)->only([
+    'index', 'update', 'store', 'destroy',
+]);
+
 Route::get('/roles-and-permissions', function () {
     $records = [];
 

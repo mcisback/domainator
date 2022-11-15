@@ -4,17 +4,20 @@ namespace App\Http\Controllers;
 
 use App\Models\SedoAccount;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class SedoAccountController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\Response|\Inertia\Response
      */
     public function index()
     {
-        //
+        return Inertia::render('Dashboard/Admin/SedoAccounts', [
+            'sedoAccounts' => SedoAccount::all()
+        ]);
     }
 
     /**

@@ -13,11 +13,25 @@
 
     const sections = [
         {
-            label: 'Domain Request',
+            label: 'Add Domain',
             route: 'dashboard.index',
             faIcon: 'fa-solid fa-globe',
             bgColor: '#d5ecfc',
             permissions: ['domains.request'],
+        },
+        {
+            label: 'Requests',
+            route: 'dashboard.domains.index',
+            faIcon: 'fa-solid fa-question',
+            bgColor: '#d5ecfc',
+            permissions: ['domains.manage'],
+        },
+        {
+            label: 'SEDO',
+            route: 'dashboard.sedoAccounts.index',
+            faIcon: 'fa-solid fa-users-gear',
+            bgColor: '#d5ecfc',
+            permissions: ['sedo.manage'],
         },
         {
             label: 'Users',

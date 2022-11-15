@@ -19,8 +19,8 @@ class CreateDomainsTable extends Migration
             $table->string('domain')->unique();
             $table->boolean('registered')->default(false);
 
-            $table->unsignedBigInteger('requesting_user_id');
-            $table->foreign('requesting_user_id')
+            $table->unsignedBigInteger('requested_by_user_id');
+            $table->foreign('requested_by_user_id')
                 ->references('id')
                 ->on('users');
 

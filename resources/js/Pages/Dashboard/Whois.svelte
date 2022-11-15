@@ -4,6 +4,7 @@
     import Spinner from "../Components/Spinners/Spinner.svelte";
 
     import { slide } from 'svelte/transition';
+    import AlertBox from "../Components/Alerts/AlertBox.svelte";
 
     const spinners = {
         checkDomain: false
@@ -19,31 +20,73 @@
 
     let formData = initFormData()
 
-    const onSubmit = () => {
+    let formMessage = null
+    let formSuccess = false
+
+    const requestDomainRegistration = () => {
         spinners.checkDomain = true
 
-        console.log('Sending formData: ', formData)
+        console.log('requestDomainRegistration() Sending formData: ', formData)
 
         axios.post(route('api.index', {
-            action: 'checkDomain',
+            action: 'requestDomainRegistration',
             domain: formData.domain
-        })).then(res => {
-            console.log('Res: ', res)
-
-            spinners.checkDomain = false
-
-            return res.data
-        })
+        }))
+        .then(res => res.data)
         .then(data => {
             console.log('Response data: ', data)
+
+            spinners.checkDomain = false
+            formSuccess = data.success
+            formMessage = data.message
 
             isAvailable = data.isAvailable
         })
         .catch(err => {
             spinners.checkDomain = false
 
+            formSuccess = false
+            formMessage = err.response.data.message
+
             console.log('Err: ', err.response.data)
         })
+    }
+
+    const checkDomainAvailability = () => {
+        spinners.checkDomain = true
+
+        console.log('checkDomainAvailability() Sending formData: ', formData)
+
+        axios.post(route('api.index', {
+            action: 'checkDomain',
+            domain: formData.domain
+        }))
+        .then(res => res.data)
+        .then(data => {
+            console.log('Response data: ', data)
+            spinners.checkDomain = false
+
+            formSuccess = data.success
+            formMessage = data.message
+
+            isAvailable = data.isAvailable
+        })
+        .catch(err => {
+            spinners.checkDomain = false
+
+            formSuccess = false
+            formMessage = err.response.data.message
+
+            console.log('Err: ', err.response.data)
+        })
+    }
+
+    const onSubmit = () => {
+        if(isAvailable === true) {
+            return requestDomainRegistration()
+        }
+
+        return checkDomainAvailability()
     }
 
 </script>
@@ -51,6 +94,18 @@
 <DashboardLayout>
     <div class="container mx-auto p-4" style="max-width: 50vh; ">
         <h1 class="text-center">Domain Request</h1>
+
+        <div class="row mb-3">
+            <div class="mx-auto">
+                {#if formMessage}
+                    <div transition:slide>
+                        <AlertBox bind:success={formSuccess}>
+                            <span>{formMessage}</span>
+                        </AlertBox>
+                    </div>
+                {/if}
+            </div>
+        </div>
 
         <div class="mx-auto">
             <form on:submit|preventDefault={onSubmit}>

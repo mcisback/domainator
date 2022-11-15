@@ -3,18 +3,32 @@
 namespace App\Http\Controllers;
 
 use App\Models\Domain;
+use App\Models\SedoAccount;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class DomainController extends Controller
 {
+    public function __construct() {
+        $this->middleware([
+            'auth:web',
+            'permission:domains.manage'
+        ]);
+    }
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\Response|\Inertia\Response
      */
     public function index()
     {
-        //
+//        $domains = collect(Domain::all())->map(function($domain) {
+//            $domain
+//        });
+        return Inertia::render('Dashboard/Admin/DomainsRequests', [
+            'domains' => Domain::all(),
+            'sedoAccounts' => SedoAccount::all()
+        ]);
     }
 
     /**

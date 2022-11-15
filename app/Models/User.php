@@ -53,10 +53,6 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function ftpServers() {
-        return $this->hasMany(FtpServer::class, 'user_id', 'id');
-    }
-
     public function isAdmin() {
         return $this->hasRole('admin');
     }
