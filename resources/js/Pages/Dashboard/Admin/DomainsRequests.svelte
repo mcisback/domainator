@@ -26,26 +26,44 @@
         'sedo_account',
     ]
 
-    // export let permissions = {}
+    const spinners = {
+        approveDomain: false,
+    }
 
-    // permissions.forEach(({id, name}) => {
-    //     types[name] = {
-    //         type: 'checkbox',
-    //         onChange: async (e, user, permission) => {
-    //             console.log('Checked target: ', e.target.checked)
-    //
-    //             await axios.post(route('api.admin.users.togglepermission', {
-    //                 userId: user.id
-    //             }) , {
-    //                 permission,
-    //                 value: e.target.checked
-    //             }).then(res => console.log('api.admin.users.togglepermission res: ', res.data))
-    //         }
-    //     }
-    // })
+    const formData = {
+
+    }
 
     console.log('domains: ', domains)
     console.log('sedoAccounts: ', sedoAccounts)
+
+    const approveDomain = (domain) =>  {
+        spinners.approveDomain = true
+
+        console.log('approveDomain() Sending domain: ', domain)
+
+        axios.post(route('api.index', {
+            action: 'approveDomain',
+            domain: domain.id
+        }))
+            .then(res => res.data)
+            .then(data => {
+                console.log('Response data: ', data)
+
+                spinners.approveDomain = false
+                formSuccess = data.success
+                formMessage = data.message
+                domains = data.domains
+            })
+            .catch(err => {
+                spinners.approveDomain = false
+
+                formSuccess = false
+                formMessage = err.response.data.message
+
+                console.log('Err: ', err.response.data)
+            })
+    }
 
 </script>
 

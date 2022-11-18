@@ -16,7 +16,9 @@ class SedoAccountSeeder extends Seeder
     {
         $entries = [
             [
-                'name' => 'SEDO Account #1',
+                'name' => 'SEDO me+api@iamattila.com',
+                'username' => 'me+api@iamattila.com',
+                'password' => 'A9LgEbNzPLS4',
                 'partner_id' => '329459',
                 'signkey' => '124db41b89c77b1252039669b9bd2a',
             ]

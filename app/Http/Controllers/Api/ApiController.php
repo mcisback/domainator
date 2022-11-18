@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use GotCreations\Namecheap\Facade\Namecheap;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -42,6 +43,7 @@ class ApiController extends Controller
 
         // Checking availability
         if ($whois->isDomainAvailable($domain)) {
+//        if( Namecheap::check($domain) ) {
             return response()->json([
                 'success' => true,
                 'message' => 'Domain is available',

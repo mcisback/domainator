@@ -17,6 +17,8 @@ class CreateSedoAccountsTable extends Migration
             $table->id();
 
             $table->string('name');
+            $table->string('username');
+            $table->string('password');
             $table->string('partner_id');
             $table->string('signkey');
 
