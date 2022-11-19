@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Facades\Namecheap as NamecheapApi;
 use App\Models\Domain;
 use App\Models\SedoAccount;
+use App\Models\Settings;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class DomainController extends Controller
@@ -45,11 +49,34 @@ class DomainController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      */
     public function store(Request $request)
     {
-        //
+        $domain = $request->get('domain');
+
+        try {
+            \App\Models\Domain::create([
+                'domain' => $domain,
+                'submitted_by_user_id' => Auth::id(),
+                'submitted_at' => Carbon::now(),
+            ]);
+        } catch(\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'requested' => false,
+                'message' => $e->getMessage(),
+                'line' => $e->getLine(),
+            ], 500);
+        }
+
+        return response()->json([
+            'success' => true,
+            'requested' => true,
+            'message' => 'Domain Registration Request Successful',
+            'domain' => $domain,
+            'isAvailable' => false
+        ]);
     }
 
     /**
@@ -87,13 +114,86 @@ class DomainController extends Controller
     }
 
     /**
+     * Register the domain the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Domain  $domain
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
+     */
+    public function register(Request $request, Domain $domain)
+    {
+        $enableWhoisProtection = $request->get('enableWhoisProtection');
+
+        try {
+            $domainData = Settings::get('namecheap');
+
+            if($enableWhoisProtection === true) {
+                $domainData['AddFreeWhoisguard'] = 'yes';
+                $domainData['WGEnabled'] = 'yes';
+            }
+
+            unset($domainData['ApiUser']);
+            unset($domainData['ApiKey']);
+
+            $response = NamecheapApi::registerDomain($domain->domain, $domainData);
+
+            if($response["Registered"] === true || $response["Registered"] === "true") {
+                $response = "Domain {$response["Domain"]} successfully registered for {$response["ChargedAmount"]}";
+
+                $nowTimestamp = Carbon::now();
+
+                $domain->approved_by_user_id = Auth::id();
+                $domain->approved_at = $nowTimestamp;
+
+                $domain->registered = true;
+                $domain->registered_at = $nowTimestamp;
+
+                $domain->save();
+            } else {
+                $response = "Error registering {$response["Domain"]}: " . json_encode($response);
+            }
+
+        } catch(\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'requested' => false,
+                'message' => $e->getMessage(),
+                'line' => $e->getLine(),
+            ], 500);
+        }
+
+        return response()->json([
+            'success' => true,
+//            'message' => 'Namecheap Domain Registration Successful',
+            "message" => $response,
+            'domains' => Domain::all(),
+        ]);
+    }
+
+
+    /**
      * Remove the specified resource from storage.
      *
      * @param  \App\Models\Domain  $domain
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      */
     public function destroy(Domain $domain)
     {
-        //
+        try {
+            $domain->deleteOrFail();
+        } catch(\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'requested' => false,
+                'message' => $e->getMessage(),
+                'line' => $e->getLine(),
+            ], 500);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Domain Deleted',
+            'domains' => Domain::all(),
+        ]);
     }
 }

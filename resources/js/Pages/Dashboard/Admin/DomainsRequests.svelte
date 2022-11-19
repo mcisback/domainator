@@ -10,6 +10,8 @@
     import {color} from "quill/ui/icons";
     import AlertBox from "../../Components/Alerts/AlertBox.svelte";
     import { slide } from 'svelte/transition';
+    import Spinner from "../../Components/Spinners/Spinner.svelte";
+    import Switch from "../../Components/Checkboxes/Switch.svelte";
 
     export let domains = []
     export let sedoAccounts = []
@@ -17,17 +19,25 @@
     let formMessage = null
     let formSuccess = false
 
+    let currentDomain = null
+    let currentSedoAccount = null
+    let enableWhoisProtection = false
+
     const columns = [
-        'id',
+        // 'id',
         'domain',
         'registered',
-        'requested_by_user',
+        'submitted_by_user',
+        'submitted_at',
         'approved_by_user',
+        'approved_at',
+        'registered_at',
         'sedo_account',
     ]
 
     const spinners = {
-        approveDomain: false,
+        registerDomain: false,
+        deleteDomain: false,
     }
 
     const formData = {
@@ -37,38 +47,68 @@
     console.log('domains: ', domains)
     console.log('sedoAccounts: ', sedoAccounts)
 
-    const approveDomain = (domain) =>  {
-        spinners.approveDomain = true
+    const registerDomain = (domain) =>  {
+        spinners.registerDomain = true
 
-        console.log('approveDomain() Sending domain: ', domain)
+        console.log('registerDomain() Sending domain: ', domain)
 
-        axios.post(route('api.index', {
-            action: 'approveDomain',
+        axios.post(route('dashboard.domains.register', {
+            domain: domain.id
+        }), {
+            enableWhoisProtection
+        })
+        .then(res => res.data)
+        .then(data => {
+            console.log('Response data: ', data)
+
+            spinners.registerDomain = false
+            formSuccess = data.success
+            formMessage = data.message
+            domains = data.domains
+        })
+        .catch(err => {
+            spinners.registerDomain = false
+
+            formSuccess = false
+            formMessage = err.response.data.message
+
+            console.log('Err: ', err.response.data)
+        })
+    }
+
+    const deleteDomain = (domain) =>  {
+        spinners.deleteDomain = true
+
+        console.log('deleteDomain() Sending domain: ', domain)
+
+        axios.delete(route('dashboard.domains.destroy', {
             domain: domain.id
         }))
-            .then(res => res.data)
-            .then(data => {
-                console.log('Response data: ', data)
+        .then(res => res.data)
+        .then(data => {
+            console.log('Response data: ', data)
 
-                spinners.approveDomain = false
-                formSuccess = data.success
-                formMessage = data.message
-                domains = data.domains
-            })
-            .catch(err => {
-                spinners.approveDomain = false
+            spinners.deleteDomain = false
+            formSuccess = data.success
+            formMessage = data.message
+            domains = data.domains
 
-                formSuccess = false
-                formMessage = err.response.data.message
+            currentDomain = null
+        })
+        .catch(err => {
+            spinners.deleteDomain = false
 
-                console.log('Err: ', err.response.data)
-            })
+            formSuccess = false
+            formMessage = err.response.data.message
+
+            console.log('Err: ', err.response.data)
+        })
     }
 
 </script>
 
 <DashboardLayout let:props let:sections let:currentUser>
-    <div class="container w-100 p-5">
+    <div class="container w-100 p-4">
         <h1 class="text-center">Domains Requests</h1>
 
         <div class="row mb-3">
@@ -83,110 +123,205 @@
             </div>
         </div>
 
-        {#if sedoAccounts.length > 0}
+        {#if currentDomain !== null}
+            <div class="row mb-3 p-4" transition:slide>
+                <div class="row mb-3 fw-bold">
+                    <label for="domain">
+                        Domain
+                    </label>
+                    <input type="text" name="domain" id="domain" class="form-control" value={currentDomain.domain} disabled>
+                </div>
 
-            <div class="row">
+                {#if currentDomain.sedo_account === null}
 
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th scope="col">
-                                #
-                            </th>
-                            {#each columns as col}
-                                <th scope="col" class="text-capitalize">
-                                    {col.replaceAll('_', ' ')}
-                                </th>
+                    <div class="row mb-3">
+                        <label for={`sedo_account`}>
+                            Select SEDO Account
+                        </label>
+                        <select name={`sedo_account`} id={`sedo_account`} bind:value={currentSedoAccount} class="form-select">
+                            {#each sedoAccounts as {id, name, partner_id}}
+                                <option value={id}>
+                                    {name}:{partner_id}
+                                </option>
                             {/each}
-                        </tr>
-                    </thead>
+                        </select>
+                    </div>
 
-                    <tbody>
-                        {#each domains as domain, i}
-                            <tr>
-                                <td>
-                                    <button class="btn btn-primary btn-red" on:click={() => approveDomain(domain[i])} disabled={domain['registered'] === 1 || null}>
-                                        <i class="fa-solid fa-arrow-up-from-bracket"></i>
-                                    </button>
-                                </td>
-                                {#each columns as col}
-                                    {#if col === 'approved_by_user'}
-                                        <td>
-                                            {#if domain[col] === null}
-                                                <span style="color: red;">
-                                                    <i class="fa-sharp fa-solid fa-xmark"></i>
-                                                    &nbsp;
-                                                    Waiting Approval
-                                                </span>
-                                            {:else}
-                                                <span style="color: green;">
-                                                    <i class="fa-solid fa-check"></i>
-                                                    &nbsp;
-                                                    {domain[col].username}
-                                                </span>
-                                            {/if}
-                                        </td>
-                                    {:else if col === 'requested_by_user'}
-                                        <td>
-                                            {#if domain[col] === null}
-                                                <span style="color: red;">
-                                                    <i class="fa-sharp fa-solid fa-xmark"></i>
-                                                </span>
-                                            {:else}
-                                                <span style="color: green;">
-                                                    <i class="fa-solid fa-check"></i>
-                                                    &nbsp;
-                                                    {domain[col].username}
-                                                </span>
-                                            {/if}
-                                        </td>
-                                    {:else if col === 'sedo_account'}
-                                        <td>
-                                            {#if domain[col] === null}
-                                                <select name={`sedo_account_${i}`} id={`sedo_account_${i}`} class="form-select">
-                                                    <option value="null">
-                                                        Select SEDO Account
-                                                    </option>
-                                                    {#each sedoAccounts as {id, name, partner_id}}
-                                                        <option value={id}>
-                                                            {name}:{partner_id}
-                                                        </option>
-                                                    {/each}
-                                                </select>
-                                            {:else}
-                                                <span style="color: green;">
-                                                    <i class="fa-solid fa-check"></i>
-                                                    &nbsp;
-                                                    {domain[col].name}
-                                                </span>
-                                            {/if}
-                                        </td>
-                                    {:else if col === 'registered'}
-                                        <td>
-                                            {#if domain[col] === 0}
-                                                <span style="color: red;">
-                                                    <i class="fa-sharp fa-solid fa-xmark"></i>
-                                                    &nbsp;
-                                                    Unregistered
-                                                </span>
-                                            {:else}
-                                                <span style="color: green;">
-                                                    <i class="fa-solid fa-check"></i>
-                                                </span>
-                                            {/if}
-                                        </td>
-                                    {:else}
-                                        <td>
-                                            {domain[col]}
-                                        </td>
-                                    {/if}
-                                {/each}
-                            </tr>
-                        {/each}
-                    </tbody>
-                </table>
+                {/if}
+
+                <div class="row mb-3">
+                    <div class="col text-center">
+                        <button class="btn btn-primary btn-red" on:click={() => registerDomain(currentDomain)} disabled={currentDomain.registered || null}>
+                            {#if spinners.registerDomain}
+                                <i class="fa-solid fa-check"></i>
+                                <Spinner />
+                            {:else}
+                                <i class="fa-solid fa-check"></i>
+                                Register
+                            {/if}
+                        </button>
+                    </div>
+
+                    <div class="col text-center">
+                        <button class="btn btn-primary btn-red" on:click={() => registerDomain(currentDomain)} disabled={currentDomain.sedo_account !== null || null}>
+                            <i class="fa-solid fa-plus"></i>
+                            Add To SEDO
+                        </button>
+                    </div>
+
+                    <div class="col text-center">
+                        <button class="btn btn-primary btn-red" on:click={() => deleteDomain(currentDomain)}>
+                            {#if spinners.deleteDomain}
+                                <i class="fa-solid fa-trash"></i>
+                                <Spinner />
+                            {:else}
+                                <i class="fa-solid fa-trash"></i>
+                                Delete
+                            {/if}
+                        </button>
+                    </div>
+                </div>
+
+                {#if !currentDomain.registered}
+                    <div class="row mb-3">
+<!--                        <div class="col text-center">-->
+                            <Switch id="whois_protection" bind:checked={enableWhoisProtection}>
+                                Whois Protection
+                            </Switch>
+<!--                        </div>-->
+                    </div>
+                {/if}
 
             </div>
+        {/if}
+
+        {#if sedoAccounts.length > 0}
+
+            {#if domains.length > 0}
+                <div class="row">
+
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                {#each columns as col}
+                                    <th scope="col" class="text-capitalize">
+                                        {col.replaceAll('_', ' ')}
+                                    </th>
+                                {/each}
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {#each domains as domain, i}
+                                <tr on:click={() => currentDomain = domains[i]}>
+                                    {#each columns as col}
+                                        {#if col === 'approved_by_user'}
+                                            <td>
+                                                {#if domain[col] === null}
+                                                    <span style="color: red;">
+                                                        <i class="fa-sharp fa-solid fa-xmark"></i>
+                                                    </span>
+                                                {:else}
+                                                    <span style="color: green;">
+                                                        <i class="fa-solid fa-check"></i>
+                                                        &nbsp;
+                                                        {domain[col].username}
+                                                    </span>
+                                                {/if}
+                                            </td>
+                                        {:else if col === 'submitted_by_user'}
+                                            <td>
+                                                {#if domain[col] === null}
+                                                    <span style="color: red;">
+                                                        <i class="fa-sharp fa-solid fa-xmark"></i>
+                                                    </span>
+                                                {:else}
+                                                    <span style="color: green;">
+                                                        <i class="fa-solid fa-check"></i>
+                                                        &nbsp;
+                                                        {domain[col].username}
+                                                    </span>
+                                                {/if}
+                                            </td>
+                                        {:else if col === 'sedo_account'}
+                                            <td>
+                                                {#if domain[col] === null}
+                                                    <span style="color: red;">
+                                                        <i class="fa-sharp fa-solid fa-xmark"></i>
+                                                    </span>
+                                                {:else}
+                                                    <span style="color: green;">
+                                                        <i class="fa-solid fa-check"></i>
+                                                        &nbsp;
+                                                        {domain[col].name}
+                                                    </span>
+                                                {/if}
+                                            </td>
+                                        {:else if col === 'registered'}
+                                            <td>
+                                                {#if domain[col] === 0}
+                                                    <span style="color: red;">
+                                                        <i class="fa-sharp fa-solid fa-xmark"></i>
+                                                    </span>
+                                                {:else}
+                                                    <span style="color: green;">
+                                                        <i class="fa-solid fa-check"></i>
+                                                    </span>
+                                                {/if}
+                                            </td>
+                                        {:else if col === 'registered_at'}
+                                            <td>
+                                                {#if domain[col] === null}
+                                                    <span style="color: red;">
+                                                        <i class="fa-sharp fa-solid fa-xmark"></i>
+                                                    </span>
+                                                {:else}
+                                                    <span style="color: green;">
+                                                        {domain[col]}
+                                                    </span>
+                                                {/if}
+                                            </td>
+                                        {:else if col === 'submitted_at'}
+                                            <td>
+                                                {#if domain[col] === null}
+                                                    <span style="color: red;">
+                                                        <i class="fa-sharp fa-solid fa-xmark"></i>
+                                                    </span>
+                                                {:else}
+                                                    <span style="color: green;">
+                                                        {domain[col]}
+                                                    </span>
+                                                {/if}
+                                            </td>
+                                        {:else if col === 'approved_at'}
+                                            <td>
+                                                {#if domain[col] === null}
+                                                    <span style="color: red;">
+                                                        <i class="fa-sharp fa-solid fa-xmark"></i>
+                                                    </span>
+                                                {:else}
+                                                    <span style="color: green;">
+                                                        {domain[col]}
+                                                    </span>
+                                                {/if}
+                                            </td>
+                                        {:else}
+                                            <td>
+                                                {domain[col]}
+                                            </td>
+                                        {/if}
+                                    {/each}
+                                </tr>
+                            {/each}
+                        </tbody>
+                    </table>
+
+                </div>
+            {:else}
+                <div class="row mb-3">
+                    No Domains Requests Yet
+                </div>
+            {/if}
         {:else}
             <div class="row mb-3">
                 No SEDO Accounts

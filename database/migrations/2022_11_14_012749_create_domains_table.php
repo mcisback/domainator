@@ -19,8 +19,8 @@ class CreateDomainsTable extends Migration
             $table->string('domain')->unique();
             $table->boolean('registered')->default(false);
 
-            $table->unsignedBigInteger('requested_by_user_id');
-            $table->foreign('requested_by_user_id')
+            $table->unsignedBigInteger('submitted_by_user_id');
+            $table->foreign('submitted_by_user_id')
                 ->references('id')
                 ->on('users');
 
@@ -34,6 +34,9 @@ class CreateDomainsTable extends Migration
                 ->references('id')
                 ->on('sedo_accounts');
 
+            $table->timestamp('submitted_at')->nullable();
+            $table->timestamp('approved_at')->nullable();
+            $table->timestamp('registered_at')->nullable();
 
             $table->timestamps();
         });

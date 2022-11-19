@@ -178,6 +178,8 @@ return [
         // Spatie Providers
         Spatie\Permission\PermissionServiceProvider::class,
 
+        // Namecheap
+        \App\Providers\NamecheapServiceProvider::class,
     ],
 
     /*
@@ -233,6 +235,8 @@ return [
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
 
+        // Namecheap
+        'NamecheapApi' => \App\Facades\Namecheap::class,
     ],
 
 ];

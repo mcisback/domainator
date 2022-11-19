@@ -28,10 +28,9 @@
 
         console.log('requestDomainRegistration() Sending formData: ', formData)
 
-        axios.post(route('api.index', {
-            action: 'requestDomainRegistration',
+        axios.post(route('dashboard.domains.store'), {
             domain: formData.domain
-        }))
+        })
         .then(res => res.data)
         .then(data => {
             console.log('Response data: ', data)

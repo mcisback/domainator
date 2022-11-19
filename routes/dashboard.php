@@ -29,6 +29,17 @@ Route::resource('domains', \App\Http\Controllers\DomainController::class)->only(
     'index', 'update', 'store', 'destroy',
 ]);
 
+Route::post('/domains/register/{domain}', [\App\Http\Controllers\DomainController::class, 'register'])
+    ->name('domains.register')
+;
+
+Route::resource('namecheap', \App\Http\Controllers\NamecheapController::class)->only([
+    'index', 'update', 'store', 'destroy',
+])
+->parameters([
+    'namecheap' => 'namecheap?'
+]);
+
 Route::get('/roles-and-permissions', function () {
     $records = [];
 

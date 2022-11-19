@@ -20,9 +20,9 @@
             permissions: ['domains.request'],
         },
         {
-            label: 'Requests',
+            label: 'Domains',
             route: 'dashboard.domains.index',
-            faIcon: 'fa-solid fa-question',
+            faIcon: 'fa-solid fa-tab',
             bgColor: '#d5ecfc',
             permissions: ['domains.manage'],
         },
@@ -32,6 +32,13 @@
             faIcon: 'fa-solid fa-users-gear',
             bgColor: '#d5ecfc',
             permissions: ['sedo.manage'],
+        },
+        {
+            label: 'Namecheap',
+            route: 'dashboard.namecheap.index',
+            faIcon: 'fa-solid fa-gears',
+            bgColor: '#d5ecfc',
+            permissions: ['namecheap.manage'],
         },
         {
             label: 'Users',

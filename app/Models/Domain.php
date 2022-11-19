@@ -11,20 +11,23 @@ class Domain extends Model
 
     protected $with = [
         'sedoAccount',
-        'requestedByUser',
+        'submittedByUser',
         'approvedByUser',
     ];
 
     protected $fillable = [
         'domain',
         'registered',
-        'requested_by_user_id',
+        'submitted_by_user_id',
         'approved_by_user_id',
         'sedo_account_id',
+        'submitted_at',
+        'registered_at',
+        'approved_at',
     ];
 
-    public function requestedByUser() {
-        return $this->belongsTo(User::class, 'requested_by_user_id');
+    public function submittedByUser() {
+        return $this->belongsTo(User::class, 'submitted_by_user_id');
     }
 
     public function approvedByUser() {

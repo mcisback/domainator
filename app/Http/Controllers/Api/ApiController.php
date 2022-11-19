@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use GotCreations\Namecheap\Facade\Namecheap;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class ApiController extends Controller
@@ -61,29 +62,7 @@ class ApiController extends Controller
     }
 
     public function requestDomainRegistration(Request $request) {
-        $domain = $request->get('domain');
 
-        try {
-            \App\Models\Domain::create([
-                'domain' => $domain,
-                'requested_by_user_id' => Auth::id(),
-            ]);
-        } catch(\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'requested' => false,
-                'message' => $e->getMessage(),
-                'line' => $e->getLine(),
-            ], 500);
-        }
-
-        return response()->json([
-            'success' => true,
-            'requested' => true,
-            'message' => 'Domain Registration Request Successful',
-            'domain' => $domain,
-            'isAvailable' => false
-        ]);
     }
 
 //    public function getTemplates(Request $request) {

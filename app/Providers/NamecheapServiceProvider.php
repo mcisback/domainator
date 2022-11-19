@@ -2,24 +2,24 @@
 
 namespace App\Providers;
 
-use App\Api\Namecheap\NamecheapApi;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\ServiceProvider;
 
-class AppServiceProvider extends ServiceProvider
+class NamecheapServiceProvider extends ServiceProvider
 {
     /**
-     * Register any application services.
+     * Register services.
      *
      * @return void
      */
     public function register()
     {
-
+        $this->app->bind('namecheapapi', function() {
+            return new \App\Api\Namecheap\NamecheapApi();
+        });
     }
 
     /**
-     * Bootstrap any application services.
+     * Bootstrap services.
      *
      * @return void
      */
