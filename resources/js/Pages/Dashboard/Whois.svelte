@@ -91,7 +91,7 @@
 </script>
 
 <DashboardLayout>
-    <div class="container mx-auto p-4" style="max-width: 50vh; ">
+    <div class="container mx-auto p-4" style="max-width: 50%; ">
         <h1 class="text-center">Domain Request</h1>
 
         <div class="row mb-3">

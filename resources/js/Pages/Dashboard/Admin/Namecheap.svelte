@@ -52,7 +52,7 @@
 </script>
 
 <DashboardLayout let:currentUser>
-    <div class="position-relative container mx-auto p-5" style="max-width: 50vh; ">
+    <div class="position-relative container mx-auto p-5" style="max-width: 50%; ">
         <h1 class="text-center">Namecheap Account Settings</h1>
 
         <div class="mx-auto">
