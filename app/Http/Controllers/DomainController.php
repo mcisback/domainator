@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Api\Sedo\SedoApi;
 use App\Facades\Namecheap as NamecheapApi;
 use App\Models\Domain;
 use App\Models\SedoAccount;
@@ -29,9 +30,14 @@ class DomainController extends Controller
 //        $domains = collect(Domain::all())->map(function($domain) {
 //            $domain
 //        });
+
+
+
         return Inertia::render('Dashboard/Admin/DomainsRequests', [
             'domains' => Domain::all(),
-            'sedoAccounts' => SedoAccount::all()
+            'sedoAccounts' => SedoAccount::all(),
+            'sedoCategories' => SedoApi::getDomainCategories(),
+            'sedoLanguages' => SedoApi::getDomainLanguages(),
         ]);
     }
 
@@ -167,6 +173,53 @@ class DomainController extends Controller
 //            'message' => 'Namecheap Domain Registration Successful',
             "message" => $response,
             'domains' => Domain::all(),
+        ]);
+    }
+
+    /**
+     * Register the domain the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Domain  $domain
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
+     */
+    public function addToSedo(Request $request, Domain $domain, SedoAccount  $sedoAccount)
+    {
+        $sedoCategoryIds = $request->get('sedoCategoryIds');
+        $isForSale = $request->get('isForSale') ?? 0;
+        $price = $request->get('price') ?? 0;
+        $minprice = $request->get('minprice') ?? 0;
+        $fixedprice = $request->get('fixedprice') ?? 0;
+//        $currencyId = $request->get('currencyId') ?? 1;
+        $sedoDomainLanguageId = $request->get('sedoDomainLanguageId') ?? 'en';
+
+        try {
+            $sedoApi = new SedoApi($sedoAccount);
+
+            $response = $sedoApi->domainInsert([
+                [
+                    'domain'         => $domain->domain,
+                    'category'       => $sedoCategoryIds,
+                    'forsale'        => $isForSale,
+                    'price'          => $price,
+                    'minprice'       => $minprice,
+                    'fixedprice'     => $fixedprice,
+                    'currency'       => 1, // USD
+                    'domainlanguage' => $sedoDomainLanguageId,
+                ],
+            ]);
+        } catch(\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => "SEDO Error: " . $e->getMessage(),
+                'line' => $e->getLine(),
+            ], 500);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Domains Added To SEDO Successful',
+            'domains' => $response,
         ]);
     }
 

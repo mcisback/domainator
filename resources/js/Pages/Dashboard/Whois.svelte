@@ -5,12 +5,18 @@
 
     import { slide } from 'svelte/transition';
     import AlertBox from "../Components/Alerts/AlertBox.svelte";
+    import {intervalLoop} from "../Helpers/intervalLoop";
 
     const spinners = {
         checkDomain: false
     }
 
     let isAvailable = null
+    let domainsText = null
+    let domains = []
+    let checkedDomains = {}
+    let availableDomains = {}
+    let nAvailableDomains = 0
 
     const initFormData = () => {
         return {
@@ -23,69 +29,94 @@
     let formMessage = null
     let formSuccess = false
 
-    const requestDomainRegistration = () => {
-        spinners.checkDomain = true
+    const requestDomainRegistration = (domain) => {
+        if(checkedDomains[domain].isAvailable === false) {
+            return
+        }
 
-        console.log('requestDomainRegistration() Sending formData: ', formData)
+        checkedDomains[domain].spinner = true
+        checkedDomains[domain].message = 'Requesting ...'
+
+        console.log('requestDomainRegistration() Requesting: ', domain)
 
         axios.post(route('dashboard.domains.store'), {
-            domain: formData.domain
+            domain
         })
         .then(res => res.data)
         .then(data => {
             console.log('Response data: ', data)
 
-            spinners.checkDomain = false
-            formSuccess = data.success
-            formMessage = data.message
+            // formSuccess = data.success
 
-            isAvailable = data.isAvailable
+            checkedDomains[domain].spinner = false
+            checkedDomains[domain].requested = true
+            checkedDomains[domain].message = data.message
+            checkedDomains[domain].isAvailable = true
         })
         .catch(err => {
-            spinners.checkDomain = false
+            checkedDomains[domain].spinner = false
 
             formSuccess = false
-            formMessage = err.response.data.message
+            checkedDomains[domain].message =  err.response.data.message
 
             console.log('Err: ', err.response.data)
         })
     }
 
-    const checkDomainAvailability = () => {
-        spinners.checkDomain = true
+    const checkDomainAvailability = (domain) => {
 
-        console.log('checkDomainAvailability() Sending formData: ', formData)
+        checkedDomains[domain] = {
+            domain,
+            isAvailable: false,
+            requested: false,
+            spinner: true,
+            message: 'Checking...',
+        }
+
+        console.log('checkDomainAvailability() Checking: ', domain)
 
         axios.post(route('api.index', {
             action: 'checkDomain',
-            domain: formData.domain
+            domain
         }))
         .then(res => res.data)
         .then(data => {
             console.log('Response data: ', data)
-            spinners.checkDomain = false
+            console.log('Checked: ', checkedDomains[domain])
 
-            formSuccess = data.success
-            formMessage = data.message
+            // formSuccess = data.success
 
-            isAvailable = data.isAvailable
+            if(data.isAvailable === true) {
+                nAvailableDomains++
+            }
+
+            checkedDomains[domain].message =  data.message
+            checkedDomains[domain].isAvailable = data.isAvailable
+            checkedDomains[domain].spinner = false
         })
         .catch(err => {
-            spinners.checkDomain = false
+            checkedDomains[domain].spinner = false
 
-            formSuccess = false
-            formMessage = err.response.data.message
+            // formSuccess = false
+            checkedDomains[domain].message =  err.response.data.message
 
             console.log('Err: ', err.response.data)
         })
     }
 
     const onSubmit = () => {
-        if(isAvailable === true) {
-            return requestDomainRegistration()
-        }
+        const intervalTime = 1000
 
-        return checkDomainAvailability()
+        domains = domainsText.split("\n")
+
+        console.log('Domains Text: ', domainsText)
+        console.log('Checking domains: ', domains)
+
+        if(nAvailableDomains === 0) {
+            intervalLoop(domains, checkDomainAvailability, intervalTime)
+        } else {
+            intervalLoop(domains, requestDomainRegistration, intervalTime)
+        }
     }
 
 </script>
@@ -106,52 +137,123 @@
             </div>
         </div>
 
-        <div class="mx-auto">
+        <div class="row mb-5 mx-auto">
             <form on:submit|preventDefault={onSubmit}>
                 <div class="row">
-                    <label for="domain">Domain</label>
+                    <label for="domains">Domains (one per line)</label>
 
                     <div class="input-group mb-3">
-                        <input type="text" name="domain" id="domain" class="form-control" placeholder="Type domain to check" bind:value={formData.domain}>
-                        <span class="input-group-text" id="basic-addon2">
+                        <textarea name="domains" id="domains" class="form-control" bind:value={domainsText} cols="30" rows="10" required disabled={nAvailableDomains > 0}></textarea>
 
-                        {#if spinners.checkDomain}
-                            <Spinner />
-                        {:else}
-                            {#if isAvailable === null}
-                                <span>
-                                    <i class="fa-solid fa-globe"></i>
-                                </span>
-                            {:else if isAvailable === true}
-                                <span style="color: green;">
-                                    <i class="fa-solid fa-check"></i>
-                                </span>
-                            {:else if isAvailable === false}
-                                <span style="color: red;">
-                                    <i class="fa-sharp fa-solid fa-xmark"></i>
-                                </span>
-                            {/if}
 
-                        {/if}
-                    </span>
                     </div>
                 </div>
 
                 <div class="row mb-0">
-                    <div class="col-md-8 offset-md-4">
-                        {#if isAvailable === true}
-                            <button type="submit" class="btn btn-primary btn-red">
-                                Request Domain Registration
+                    <div class="col">
+                        {#if nAvailableDomains > 0}
+                            <button type="submit" class="btn btn-primary btn-red w-100">
+                                Request {nAvailableDomains} Domains Registration
                             </button>
                         {:else}
-                            <button type="submit" class="btn btn-primary btn-red">
-                                Check Domain Availability
+                            <button type="submit" class="btn btn-primary btn-red w-100">
+                                Check Domains Availability
                             </button>
                         {/if}
                     </div>
                 </div>
 
             </form>
+        </div>
+
+        <div class="row mb-2">
+            <h1>Domains Availability</h1>
+        </div>
+
+        <div class="row mb-3" transition:slide>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>
+                            Available
+                        </th>
+
+                        <th>
+                            Requested
+                        </th>
+
+                        <th>
+                            Domain
+                        </th>
+
+                        <th>
+                            Message
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {#each Object.entries(checkedDomains) as [domain, {isAvailable, requested, spinner, message}]}
+                        <tr>
+                            <td>
+                                {#if spinner}
+                                    <Spinner />
+                                {:else}
+                                    {#if isAvailable === null}
+                                        <span>
+                                            <i class="fa-solid fa-globe"></i>
+                                        </span>
+                                    {:else if isAvailable === true}
+                                        <span style="color: green;">
+                                            <i class="fa-solid fa-check"></i>
+                                        </span>
+                                    {:else if isAvailable === false}
+                                        <span style="color: red;">
+                                            <i class="fa-sharp fa-solid fa-xmark"></i>
+                                        </span>
+                                    {/if}
+                                {/if}
+                            </td>
+
+                            <td>
+                                {#if spinner}
+                                    <Spinner />
+                                {:else}
+                                    {#if requested === null}
+                                        <span>
+                                            <i class="fa-solid fa-globe"></i>
+                                        </span>
+                                    {:else if requested === true}
+                                        <span style="color: green;">
+                                            <i class="fa-solid fa-check"></i>
+                                        </span>
+                                    {:else if requested === false}
+                                        <span style="color: red;">
+                                            <i class="fa-sharp fa-solid fa-xmark"></i>
+                                        </span>
+                                    {/if}
+                                {/if}
+                            </td>
+
+                            <td>
+                                {domain}
+                            </td>
+
+                            <td>
+                                {message}
+                            </td>
+                        </tr>
+                    {:else}
+                        <tr>
+                            <td colspan={4}>
+                                No Domains Yet
+                            </td>
+                        </tr>
+                    {/each}
+                </tbody>
+
+            </table>
+
         </div>
     </div>
 </DashboardLayout>

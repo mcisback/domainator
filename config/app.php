@@ -179,7 +179,7 @@ return [
         Spatie\Permission\PermissionServiceProvider::class,
 
         // Namecheap
-        \App\Providers\NamecheapServiceProvider::class,
+        \App\Providers\SedoServiceProvider::class,
     ],
 
     /*

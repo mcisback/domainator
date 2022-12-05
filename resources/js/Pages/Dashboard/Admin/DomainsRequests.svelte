@@ -15,13 +15,27 @@
 
     export let domains = []
     export let sedoAccounts = []
+    export let sedoCategories = []
+    export let sedoLanguages = []
 
     let formMessage = null
     let formSuccess = false
 
     let currentDomain = null
-    let currentSedoAccount = null
+    let currentSedoAccountId = null
     let enableWhoisProtection = false
+    let sedoCategoryIds = []
+    let sedoLanguage = 'en'
+    let isForSale = false
+    let price = 0
+    let minprice = 0
+    let fixedprice = false
+    let currency = "USD"
+
+
+    if(sedoAccounts.length > 0) {
+        currentSedoAccountId = sedoAccounts[0].id
+    }
 
     const columns = [
         // 'id',
@@ -38,6 +52,7 @@
     const spinners = {
         registerDomain: false,
         deleteDomain: false,
+        addDomainToSEDO: false,
     }
 
     const formData = {
@@ -46,6 +61,8 @@
 
     console.log('domains: ', domains)
     console.log('sedoAccounts: ', sedoAccounts)
+    console.log('sedoCategories: ', sedoCategories)
+    console.log('sedoLanguages: ', sedoLanguages)
 
     const registerDomain = (domain) =>  {
         spinners.registerDomain = true
@@ -59,12 +76,14 @@
         })
         .then(res => res.data)
         .then(data => {
-            console.log('Response data: ', data)
+            console.log('registerDomain() Response data: ', data)
 
             spinners.registerDomain = false
             formSuccess = data.success
             formMessage = data.message
             domains = data.domains
+
+            currentDomain.registered = data.success
         })
         .catch(err => {
             spinners.registerDomain = false
@@ -74,6 +93,38 @@
 
             console.log('Err: ', err.response.data)
         })
+    }
+
+    const addDomainToSEDO = (domain) =>  {
+        spinners.addDomainToSEDO = true
+
+        console.log('addDomainToSEDO() Sending domain: ', {domain, sedoCategoryIds, sedoLanguage})
+
+        return
+
+        axios.post(route('dashboard.domains.addToSedo', {
+            domain: domain.id,
+            sedoAccount: currentSedoAccountId
+        }), {
+            sedoCategoryIds
+        })
+            .then(res => res.data)
+            .then(data => {
+                console.log('addDomainToSEDO() Response data: ', data)
+
+                spinners.addDomainToSEDO = false
+                formSuccess = data.success
+                formMessage = data.message
+                domains = data.domains
+            })
+            .catch(err => {
+                spinners.addDomainToSEDO = false
+
+                formSuccess = false
+                formMessage = err.response.data.message
+
+                console.log('Err: ', err.response.data)
+            })
     }
 
     const deleteDomain = (domain) =>  {
@@ -86,7 +137,7 @@
         }))
         .then(res => res.data)
         .then(data => {
-            console.log('Response data: ', data)
+            console.log('deleteDomain() Response data: ', data)
 
             spinners.deleteDomain = false
             formSuccess = data.success
@@ -110,6 +161,7 @@
 <DashboardLayout let:props let:sections let:currentUser>
     <div class="container w-100 p-4">
         <h1 class="text-center">Domains Requests</h1>
+        <h2 class="text-center">(Click Row For Domain Tools)</h2>
 
         <div class="row mb-3">
             <div class="mx-auto">
@@ -132,13 +184,21 @@
                     <input type="text" name="domain" id="domain" class="form-control" value={currentDomain.domain} disabled>
                 </div>
 
-                {#if currentDomain.sedo_account === null}
+                {#if currentDomain.sedo_account === null && currentDomain.registered}
+
+                    <div class="row mb-3">
+                        <AlertBox type="warning">
+                            <strong>&#x26A0; Note:</strong> Adding Domain To SEDO does not have an immediate effect as domains first have to pass a couple of checks before they get added to an account. You will be notified via eMail in case any checks fail.
+                            <br>
+                            This is how SEDO API works.
+                        </AlertBox>
+                    </div>
 
                     <div class="row mb-3">
                         <label for={`sedo_account`}>
                             Select SEDO Account
                         </label>
-                        <select name={`sedo_account`} id={`sedo_account`} bind:value={currentSedoAccount} class="form-select">
+                        <select name={`sedo_account`} id={`sedo_account`} bind:value={currentSedoAccountId} class="form-select">
                             {#each sedoAccounts as {id, name, partner_id}}
                                 <option value={id}>
                                     {name}:{partner_id}
@@ -146,6 +206,33 @@
                             {/each}
                         </select>
                     </div>
+
+                    <div class="row mb-3">
+                        <label for={`sedo_categories`}>
+                            SEDO Domain Categories
+                        </label>
+                        <select name={`sedo_categories`} id={`sedo_categories`} bind:value={sedoCategoryIds} class="form-select" multiple>
+                            {#each Object.entries(sedoCategories) as [id, category]}
+                                <option value={id}>
+                                    {id} : {category}
+                                </option>
+                            {/each}
+                        </select>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label for={`sedo_language`}>
+                            SEDO Domain Language
+                        </label>
+                        <select name={`sedo_language`} id={`sedo_language`} bind:value={sedoLanguage} class="form-select">
+                            {#each Object.entries(sedoLanguages) as [iso, language]}
+                                <option value={iso}>
+                                    {iso} : {language}
+                                </option>
+                            {/each}
+                        </select>
+                    </div>
+
 
                 {/if}
 
@@ -163,14 +250,14 @@
                     </div>
 
                     <div class="col text-center">
-                        <button class="btn btn-primary btn-red" on:click={() => registerDomain(currentDomain)} disabled={currentDomain.sedo_account !== null || null}>
+                        <button class="btn btn-primary btn-red" on:click={() => addDomainToSEDO(currentDomain)} disabled={!(currentDomain.sedo_account === null && currentDomain.registered)}>
                             <i class="fa-solid fa-plus"></i>
                             Add To SEDO
                         </button>
                     </div>
 
                     <div class="col text-center">
-                        <button class="btn btn-primary btn-red" on:click={() => deleteDomain(currentDomain)}>
+                        <button class="btn btn-primary btn-red" on:click={() => deleteDomain(currentDomain)} disabled={(currentDomain.registered || null)}>
                             {#if spinners.deleteDomain}
                                 <i class="fa-solid fa-trash"></i>
                                 <Spinner />
@@ -184,11 +271,9 @@
 
                 {#if !currentDomain.registered}
                     <div class="row mb-3">
-<!--                        <div class="col text-center">-->
-                            <Switch id="whois_protection" bind:checked={enableWhoisProtection}>
-                                Whois Protection
-                            </Switch>
-<!--                        </div>-->
+                        <Switch id="whois_protection" bind:checked={enableWhoisProtection}>
+                            Whois Protection
+                        </Switch>
                     </div>
                 {/if}
 
@@ -337,4 +422,12 @@
         background-color: cornsilk;
         cursor: pointer;
     }
+    /*table tbody tr {*/
+    /*    display: flex;*/
+    /*    flex-wrap: wrap;*/
+    /*}*/
+
+    /*table tbody td {*/
+    /*    display: block;*/
+    /*}*/
 </style>

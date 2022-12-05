@@ -33,6 +33,10 @@ Route::post('/domains/register/{domain}', [\App\Http\Controllers\DomainControlle
     ->name('domains.register')
 ;
 
+Route::post('/domains/addtosedo/{domain}/{sedoAccount}', [\App\Http\Controllers\DomainController::class, 'addToSedo'])
+    ->name('domains.addToSedo')
+;
+
 Route::resource('namecheap', \App\Http\Controllers\NamecheapController::class)->only([
     'index', 'update', 'store', 'destroy',
 ])
