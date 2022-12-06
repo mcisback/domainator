@@ -37,6 +37,10 @@ Route::post('/domains/addtosedo/{domain}/{sedoAccount}', [\App\Http\Controllers\
     ->name('domains.addToSedo')
 ;
 
+Route::post('/domains/sedoverify/{domain}/{sedoAccount}', [\App\Http\Controllers\DomainController::class, 'sedoVerifyDomain'])
+    ->name('domains.sedoVerify')
+;
+
 Route::resource('namecheap', \App\Http\Controllers\NamecheapController::class)->only([
     'index', 'update', 'store', 'destroy',
 ])

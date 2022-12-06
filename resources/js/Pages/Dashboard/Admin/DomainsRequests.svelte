@@ -47,12 +47,14 @@
         'approved_at',
         'registered_at',
         'sedo_account',
+        'verified_on_sedo_at',
     ]
 
     const spinners = {
         registerDomain: false,
         deleteDomain: false,
         addDomainToSEDO: false,
+        verifyDomainOnSEDO: false,
     }
 
     const formData = {
@@ -159,8 +161,35 @@
         })
     }
 
-    function verifyDomainOnSEDO(currentDomain) {
+    const verifyDomainOnSEDO = (domain) =>  {
+        spinners.verifyDomainOnSEDO = true
 
+        console.log('verifyDomainOnSEDO() Sending domain: ', domain)
+        return
+
+        axios.post(route('dashboard.domains.register', {
+            domain: domain.id,
+            sedoAccount: domain.sedo_account
+        }), {
+            enableWhoisProtection
+        })
+            .then(res => res.data)
+            .then(data => {
+                console.log('verifyDomainOnSEDO() Response data: ', data)
+
+                spinners.verifyDomainOnSEDO = false
+                formSuccess = data.success
+                formMessage = data.message
+                domains = data.domains
+            })
+            .catch(err => {
+                spinners.verifyDomainOnSEDO = false
+
+                formSuccess = false
+                formMessage = err.response.data.message
+
+                console.log('Err: ', err.response.data)
+            })
     }
 
 </script>
@@ -205,7 +234,7 @@
                         <label for={`sedo_account`}>
                             Select SEDO Account
                         </label>
-                        <select name={`sedo_account`} id={`sedo_account`} bind:value={currentSedoAccountId} class="form-select">
+                        <select name={`sedo_account`} id={`sedo_account`} bind:value={currentSedoAccountId} class="form-select" disabled={currentDomain.sedo_account || null}>
                             {#each sedoAccounts as {id, name, partner_id}}
                                 <option value={id}>
                                     {name}:{partner_id}
@@ -391,6 +420,20 @@
                                                         <i class="fa-solid fa-check"></i>
                                                         &nbsp;
                                                         {domain[col].name}
+                                                    </span>
+                                                {/if}
+                                            </td>
+                                        {:else if col === 'verified_on_sedo_at'}
+                                            <td>
+                                                {#if domain[col] === null}
+                                                    <span style="color: red;">
+                                                        <i class="fa-sharp fa-solid fa-xmark"></i>
+                                                    </span>
+                                                {:else}
+                                                    <span style="color: green;">
+                                                        <i class="fa-solid fa-check"></i>
+                                                        &nbsp;
+                                                        {domain[col]}
                                                     </span>
                                                 {/if}
                                             </td>

@@ -37,6 +37,7 @@ class CreateDomainsTable extends Migration
             $table->timestamp('submitted_at')->nullable();
             $table->timestamp('approved_at')->nullable();
             $table->timestamp('registered_at')->nullable();
+            $table->timestamp('verified_on_sedo_at')->nullable();
 
             $table->timestamps();
         });

@@ -172,7 +172,7 @@ class DomainController extends Controller
     }
 
     /**
-     * Register the domain the specified resource in storage.
+     * Add Domain To SEDO
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \App\Models\Domain  $domain
@@ -230,6 +230,46 @@ class DomainController extends Controller
             'message' => 'Domains Added To SEDO Successful',
             'domains' => Domain::all(),
             'sedoDomains' => $response,
+        ]);
+    }
+
+
+    /**
+     * Add Domain To SEDO
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Domain  $domain
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
+     */
+    public function sedoVerifyDomain(Request $request, Domain $domain, SedoAccount  $sedoAccount)
+    {
+        try {
+            $namecheapApi = new NamecheapApi();
+
+            $response = $namecheapApi->addDNSRecordsToDomain($domain->domain, [
+                [
+                    'HostName' => '@',
+                    'RecordType' => 'TXT',
+                    'Address' => $sedoAccount->domain_ownership_id,
+                ]
+            ]);
+
+        } catch(\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => "Namecheap API Error: " . $e->getMessage(),
+                'line' => $e->getLine(),
+            ], 500);
+        }
+
+        $domain->verified_on_sedo_at = Carbon::now();
+        $domain->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Domains Verified on SEDO Successfully',
+            'domains' => Domain::all(),
+            'namecheapResponse' => $response,
         ]);
     }
 
