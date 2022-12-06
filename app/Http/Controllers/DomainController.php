@@ -186,12 +186,23 @@ class DomainController extends Controller
     public function addToSedo(Request $request, Domain $domain, SedoAccount  $sedoAccount)
     {
         $sedoCategoryIds = $request->get('sedoCategoryIds');
-        $isForSale = $request->get('isForSale') ?? 0;
+        $isForSale = $request->get('isForSale') === true ? 1 : 0;
         $price = $request->get('price') ?? 0;
         $minprice = $request->get('minprice') ?? 0;
-        $fixedprice = $request->get('fixedprice') ?? 0;
+        $fixedprice = $request->get('fixedprice') === true ? 1 : 0;
 //        $currencyId = $request->get('currencyId') ?? 1;
         $sedoDomainLanguageId = $request->get('sedoDomainLanguageId') ?? 'en';
+
+//        print_r([
+//            'domain'         => $domain->domain,
+//            'category'       => $sedoCategoryIds,
+//            'forsale'        => $isForSale,
+//            'price'          => $price,
+//            'minprice'       => $minprice,
+//            'fixedprice'     => $fixedprice,
+//            'currency'       => 1, // USD
+//            'domainlanguage' => $sedoDomainLanguageId,
+//        ]);
 
         try {
             $sedoApi = new SedoApi($sedoAccount);
@@ -216,10 +227,14 @@ class DomainController extends Controller
             ], 500);
         }
 
+        $domain->sedo_account_id = $sedoAccount->id;
+        $domain->save();
+
         return response()->json([
             'success' => true,
             'message' => 'Domains Added To SEDO Successful',
-            'domains' => $response,
+            'domains' => Domain::all(),
+            'sedoDomains' => $response,
         ]);
     }
 

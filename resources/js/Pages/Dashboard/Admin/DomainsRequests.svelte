@@ -100,13 +100,16 @@
 
         console.log('addDomainToSEDO() Sending domain: ', {domain, sedoCategoryIds, sedoLanguage})
 
-        return
-
         axios.post(route('dashboard.domains.addToSedo', {
             domain: domain.id,
             sedoAccount: currentSedoAccountId
         }), {
-            sedoCategoryIds
+            sedoCategoryIds,
+            sedoLanguage,
+            isForSale,
+            price,
+            minprice,
+            fixedprice,
         })
             .then(res => res.data)
             .then(data => {
@@ -161,7 +164,7 @@
 <DashboardLayout let:props let:sections let:currentUser>
     <div class="container w-100 p-4">
         <h1 class="text-center">Domains Requests</h1>
-        <h2 class="text-center">(Click Row For Domain Tools)</h2>
+        <h2 class="text-center">(Click Rows For Domain Tools)</h2>
 
         <div class="row mb-3">
             <div class="mx-auto">
@@ -188,7 +191,7 @@
 
                     <div class="row mb-3">
                         <AlertBox type="warning">
-                            <strong>&#x26A0; Note:</strong> Adding Domain To SEDO does not have an immediate effect as domains first have to pass a couple of checks before they get added to an account. You will be notified via eMail in case any checks fail.
+                            <strong>&#x26A0; Note:</strong> Adding Domains To SEDO does not have an immediate effect as domains first have to pass a couple of checks before they get added to an account. You will be notified via eMail in case any checks fail.
                             <br>
                             This is how SEDO API works.
                         </AlertBox>
@@ -233,6 +236,43 @@
                         </select>
                     </div>
 
+                    <div class="row mb-3 align-items-center">
+                        <div class="col">
+                            <Switch id="is_for_sale" bind:checked={isForSale}>
+                                Is For Sale ?
+                            </Switch>
+                        </div>
+
+                        <div class="col">
+                            <Switch id="fixed_price" bind:checked={fixedprice}>
+                                Fixed Price ?
+                            </Switch>
+                        </div>
+
+                        <div class="col">
+
+                            <div class="row">
+                                <label for="price" class="col col-form-label">Price</label>
+
+                                <div class="col">
+                                    <input type="number" name="price" id="price" bind:value={price} class="form-control">
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="col">
+
+                            <div class="row">
+                                <label for="minprice" class="col col-form-label">Min. Price</label>
+
+                                <div class="col">
+                                    <input type="number" name="minprice" id="minprice" bind:value={minprice} class="form-control">
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
 
                 {/if}
 

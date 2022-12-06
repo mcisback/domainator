@@ -22,7 +22,7 @@
         {
             label: 'Domains',
             route: 'dashboard.domains.index',
-            faIcon: 'fa-solid fa-tab',
+            faIcon: 'fa-solid fa-book-atlas',
             bgColor: '#d5ecfc',
             permissions: ['domains.manage'],
         },
