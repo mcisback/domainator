@@ -16,6 +16,8 @@
     let domains = []
     let checkedDomains = {}
     let availableDomains = {}
+    let domainsToRegister = []
+    let domainsToRegisterAll = false
     let nAvailableDomains = 0
 
     const initFormData = () => {
@@ -31,6 +33,9 @@
 
     const requestDomainRegistration = (domain) => {
         if(checkedDomains[domain].isAvailable === false) {
+            formSuccess = false
+            formMessage = "Domain is not available for registration"
+
             return
         }
 
@@ -65,6 +70,8 @@
 
     const checkDomainAvailability = (domain) => {
 
+        // availableDomains = {}
+
         checkedDomains[domain] = {
             domain,
             isAvailable: false,
@@ -86,13 +93,18 @@
 
             // formSuccess = data.success
 
-            if(data.isAvailable === true) {
-                nAvailableDomains++
-            }
-
             checkedDomains[domain].message =  data.message
             checkedDomains[domain].isAvailable = data.isAvailable
             checkedDomains[domain].spinner = false
+
+            if(data.isAvailable === true) {
+                nAvailableDomains++
+
+                availableDomains[domain] = checkedDomains[domain]
+
+                // domainsToRegister.push(domain)
+            }
+
         })
         .catch(err => {
             checkedDomains[domain].spinner = false
@@ -112,17 +124,32 @@
         console.log('Domains Text: ', domainsText)
         console.log('Checking domains: ', domains)
 
+        console.log('domainsToRegister: ', domainsToRegister)
+        console.log('nAvailableDomains: ', nAvailableDomains)
+        console.log('availableDomains: ', availableDomains)
+        console.log('domainsToRegisterAll: ', domainsToRegisterAll)
+
         if(nAvailableDomains === 0) {
             intervalLoop(domains, checkDomainAvailability, intervalTime)
         } else {
-            intervalLoop(domains, requestDomainRegistration, intervalTime)
+            intervalLoop(domainsToRegister, requestDomainRegistration, intervalTime)
+        }
+    }
+
+    const checkAll = () => {
+        domainsToRegister = []
+
+        if(domainsToRegisterAll === true) {
+            Object.entries(availableDomains).forEach(([domain, domainData]) => {
+                domainsToRegister.push(domain)
+            })
         }
     }
 
 </script>
 
 <DashboardLayout>
-    <div class="container mx-auto p-4" style="max-width: 50%; ">
+    <div class="container mx-auto p-1 pt-4" style="max-width: 50%; ">
         <h1 class="text-center">Domain Request</h1>
 
         <div class="row mb-3">
@@ -153,7 +180,7 @@
                     <div class="col">
                         {#if nAvailableDomains > 0}
                             <button type="submit" class="btn btn-primary btn-red w-100">
-                                Request {nAvailableDomains} Domains Registration
+                                Request {domainsToRegister.length || ''} Domains Registration
                             </button>
                         {:else}
                             <button type="submit" class="btn btn-primary btn-red w-100">
@@ -174,6 +201,9 @@
             <table class="table table-striped">
                 <thead>
                     <tr>
+                        <th scope="col">
+                            <input type="checkbox" name="domainsToRegisterAll" bind:checked={domainsToRegisterAll} id="domainsToRegisterAll" on:change={checkAll}>
+                        </th>
                         <th>
                             Available
                         </th>
@@ -193,8 +223,11 @@
                 </thead>
 
                 <tbody>
-                    {#each Object.entries(checkedDomains) as [domain, {isAvailable, requested, spinner, message}]}
+                    {#each Object.entries(checkedDomains) as [domain, {isAvailable, requested, spinner, message}], i}
                         <tr>
+                            <td>
+                                <input type="checkbox" name={`domainsToRegister${i}`} id={`domainsToRegister${i}`} disabled={!isAvailable} bind:group={domainsToRegister} value={domain} checked={domainsToRegister.includes(domain)}>
+                            </td>
                             <td>
                                 {#if spinner}
                                     <Spinner />
@@ -245,7 +278,7 @@
                         </tr>
                     {:else}
                         <tr>
-                            <td colspan={4}>
+                            <td colspan={5}>
                                 No Domains Yet
                             </td>
                         </tr>
