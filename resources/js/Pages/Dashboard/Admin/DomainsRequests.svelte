@@ -121,6 +121,8 @@
                 formSuccess = data.success
                 formMessage = data.message
                 domains = data.domains
+
+                currentDomain = updateCurrentDomain(domain, data.domains)
             })
             .catch(err => {
                 spinners.addDomainToSEDO = false
@@ -161,18 +163,17 @@
         })
     }
 
+    const updateCurrentDomain = (domain, domains) => {
+        return domains.filter(d => d.domain === domain.domain)[0]
+    }
+
     const verifyDomainOnSEDO = (domain) =>  {
         spinners.verifyDomainOnSEDO = true
 
-        console.log('verifyDomainOnSEDO() Sending domain: ', domain)
-        return
-
-        axios.post(route('dashboard.domains.register', {
+        axios.post(route('dashboard.domains.sedoVerify', {
             domain: domain.id,
-            sedoAccount: domain.sedo_account
-        }), {
-            enableWhoisProtection
-        })
+            sedoAccount: domain.sedo_account.id
+        }))
             .then(res => res.data)
             .then(data => {
                 console.log('verifyDomainOnSEDO() Response data: ', data)
@@ -181,6 +182,8 @@
                 formSuccess = data.success
                 formMessage = data.message
                 domains = data.domains
+
+                currentDomain = updateCurrentDomain(domain, data.domains)
             })
             .catch(err => {
                 spinners.verifyDomainOnSEDO = false
@@ -324,18 +327,32 @@
 
                     <div class="col text-center">
                         <button class="btn btn-primary btn-red" on:click={() => addDomainToSEDO(currentDomain)} disabled={!(currentDomain.sedo_account === null && currentDomain.registered)}>
-                            <i class="fa-solid fa-plus"></i>
-                            Add To SEDO
+                            {#if spinners.addDomainToSEDO}
+                                <i class="fa-solid fa-plus"></i>
+                                <Spinner />
+                            {:else}
+                                <i class="fa-solid fa-plus"></i>
+                                Add to SEDO
+                            {/if}
                         </button>
                     </div>
 
-                    <div class="col text-center">
-                        <button class="btn btn-primary btn-red" on:click={() => verifyDomainOnSEDO(currentDomain)}
-                                disabled={currentDomain.sedo_account === null}>
-                            <i class="fa-solid fa-plus"></i>
-                            Verify Domain On SEDO
-                        </button>
-                    </div>
+                    {#if currentDomain.registered && currentDomain.sedo_account !== null}
+
+                        <div class="col text-center" transition:slide>
+                            <button class="btn btn-primary btn-red" on:click={() => verifyDomainOnSEDO(currentDomain)}
+                                    disabled={currentDomain.verified_on_sedo_at || null}>
+                                {#if spinners.verifyDomainOnSEDO}
+                                    <i class="fa-solid fa-certificate"></i>
+                                    <Spinner />
+                                {:else}
+                                    <i class="fa-solid fa-certificate"></i>
+                                    Verify Domain On SEDO
+                                {/if}
+                            </button>
+                        </div>
+
+                    {/if}
 
                     <div class="col text-center">
                         <button class="btn btn-primary btn-red" on:click={() => deleteDomain(currentDomain)} disabled={(currentDomain.registered || null)}>
