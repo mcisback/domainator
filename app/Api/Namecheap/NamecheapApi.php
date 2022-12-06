@@ -189,4 +189,28 @@ class NamecheapApi
 
         return $this->commandResponse()["DomainCreateResult"]["@attributes"];
     }
+
+    public function addDNSRecordsToDomain($domain, array $data) {
+        $domain = new \Utopia\Domains\Domain($domain);
+
+        $dnsRecords = [];
+        $count = 1;
+
+        foreach ($data as $dnsRecord) {
+            foreach ($dnsRecord as $key => $value) {
+                $dnsRecords["$key$count"] = $value;
+            }
+
+            $count++;
+        }
+
+        $this->run('domains.dns.setHosts', [
+            'SLD' => $domain->getName(),
+            'TLD' => $domain->getSuffix(),
+
+            ...$dnsRecords,
+        ]);
+
+        return $this->commandResponse()["DomainDNSSetHostsResult"]["@attributes"];
+    }
 }
