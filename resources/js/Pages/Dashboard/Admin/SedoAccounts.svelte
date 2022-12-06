@@ -11,13 +11,10 @@
 
     console.log('currentUser: ', currentUser)
 
-    const defaultPorts = {
-        ftp: 21,
-        sftp: 22,
-    }
-
     const formData = {
         name: '',
+        username: '',
+        password: '',
         partner_id: '',
         signkey: '',
     }
@@ -105,6 +102,23 @@
                 </div>
 
                 <div class="row mb-3">
+                    <label for="username" class="text-capitalize">
+                        Username
+                    </label>
+                    <input type="text" class="form-control" name="username" id="username" bind:value={formData.username} required>
+                    <small>
+                        You can find it <a href="https://sedo.com/member/editaccount.php3?language=us" target="_blank" rel="noreferrer">here</a>, under "Login Name"
+                    </small>
+                </div>
+
+                <div class="row mb-3">
+                    <label for="password" class="text-capitalize">
+                        Password
+                    </label>
+                    <input type="password" class="form-control" name="password" id="password" bind:value={formData.password} required>
+                </div>
+
+                <div class="row mb-3">
                     <label for="partner_id" class="text-capitalize">
                         PartnerID
                     </label>
@@ -116,6 +130,16 @@
                         SignKey
                     </label>
                     <input type="text" class="form-control" name="signkey" id="signkey" bind:value={formData.signkey} required>
+                </div>
+
+                <div class="row mb-3">
+                    <label for="domain_ownership_id" class="text-capitalize">
+                        Domain Ownership ID
+                    </label>
+                    <input type="text" class="form-control" name="domain_ownership_id" id="domain_ownership_id" bind:value={formData.signkey} required>
+                    <small>
+                        You can find it <a href="https://sedo.com/member/ownership_verification.php" target="_blank" rel="noreferrer">here</a>, under "Your personal ID"
+                    </small>
                 </div>
 
                 <div class="row mb-3">

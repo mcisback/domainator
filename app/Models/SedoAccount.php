@@ -11,7 +11,10 @@ class SedoAccount extends Model
 
     protected $fillable = [
         'name',
+        'username',
+        'password',
         'partner_id',
         'signkey',
+        'domain_ownership_id',
     ];
 }

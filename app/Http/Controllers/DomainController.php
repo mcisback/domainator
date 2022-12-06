@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Api\Namecheap\NamecheapApi;
 use App\Api\Sedo\SedoApi;
-use App\Facades\Namecheap as NamecheapApi;
 use App\Models\Domain;
 use App\Models\SedoAccount;
 use App\Models\Settings;
@@ -27,12 +27,6 @@ class DomainController extends Controller
      */
     public function index()
     {
-//        $domains = collect(Domain::all())->map(function($domain) {
-//            $domain
-//        });
-
-
-
         return Inertia::render('Dashboard/Admin/DomainsRequests', [
             'domains' => Domain::all(),
             'sedoAccounts' => SedoAccount::all(),
@@ -129,6 +123,7 @@ class DomainController extends Controller
     public function register(Request $request, Domain $domain)
     {
         $enableWhoisProtection = $request->get('enableWhoisProtection');
+        $namecheapApi = new NamecheapApi();
 
         try {
             $domainData = Settings::get('namecheap');
@@ -141,7 +136,7 @@ class DomainController extends Controller
             unset($domainData['ApiUser']);
             unset($domainData['ApiKey']);
 
-            $response = NamecheapApi::registerDomain($domain->domain, $domainData);
+            $response = $namecheapApi->registerDomain($domain->domain, $domainData);
 
             if($response["Registered"] === true || $response["Registered"] === "true") {
                 $response = "Domain {$response["Domain"]} successfully registered for {$response["ChargedAmount"]}";

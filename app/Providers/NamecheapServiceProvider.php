@@ -13,7 +13,7 @@ class NamecheapServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->bind('namecheapapi', function() {
+        $this->app->bind('namecheap', function() {
             return new \App\Api\Namecheap\NamecheapApi();
         });
     }

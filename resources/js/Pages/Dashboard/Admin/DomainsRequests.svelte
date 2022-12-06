@@ -159,6 +159,10 @@
         })
     }
 
+    function verifyDomainOnSEDO(currentDomain) {
+
+    }
+
 </script>
 
 <DashboardLayout let:props let:sections let:currentUser>
@@ -293,6 +297,14 @@
                         <button class="btn btn-primary btn-red" on:click={() => addDomainToSEDO(currentDomain)} disabled={!(currentDomain.sedo_account === null && currentDomain.registered)}>
                             <i class="fa-solid fa-plus"></i>
                             Add To SEDO
+                        </button>
+                    </div>
+
+                    <div class="col text-center">
+                        <button class="btn btn-primary btn-red" on:click={() => verifyDomainOnSEDO(currentDomain)}
+                                disabled={currentDomain.sedo_account === null}>
+                            <i class="fa-solid fa-plus"></i>
+                            Verify Domain On SEDO
                         </button>
                     </div>
 

@@ -236,7 +236,7 @@ return [
         'View' => Illuminate\Support\Facades\View::class,
 
         // Namecheap
-        'NamecheapApi' => \App\Facades\Namecheap::class,
+        'Namecheap' => \App\Facades\Namecheap::class,
     ],
 
 ];
