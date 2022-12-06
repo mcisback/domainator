@@ -7,10 +7,6 @@
     import AlertBox from "../Components/Alerts/AlertBox.svelte";
     import {intervalLoop} from "../Helpers/intervalLoop";
 
-    const spinners = {
-        checkDomain: false
-    }
-
     let isAvailable = null
     let domainsText = null
     let domains = []
@@ -146,6 +142,22 @@
         }
     }
 
+    const clear = () => {
+        isAvailable = null
+        domainsText = null
+        domains = []
+        checkedDomains = {}
+        availableDomains = {}
+        domainsToRegister = []
+        domainsToRegisterAll = false
+        nAvailableDomains = 0
+
+        formData = initFormData()
+
+        formMessage = null
+        formSuccess = false
+    }
+
 </script>
 
 <DashboardLayout>
@@ -177,10 +189,14 @@
                 </div>
 
                 <div class="row mb-0">
-                    <div class="col">
+                    <div class="col d-flex justify-content-between">
                         {#if nAvailableDomains > 0}
-                            <button type="submit" class="btn btn-primary btn-red w-100">
+                            <button type="submit" class="btn btn-primary btn-red w-75" disabled={domainsToRegister.length === 0}>
                                 Request {domainsToRegister.length || ''} Domains Registration
+                            </button>
+
+                            <button type="button" class="btn btn-light" on:click|preventDefault={clear}>
+                                <i class="fa-solid fa-xmark"></i>
                             </button>
                         {:else}
                             <button type="submit" class="btn btn-primary btn-red w-100">
