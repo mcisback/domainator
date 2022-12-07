@@ -223,6 +223,25 @@
                     <input type="text" name="domain" id="domain" class="form-control" value={currentDomain.domain} disabled>
                 </div>
 
+                {#if currentDomain.sedo_account !== null && currentDomain.verified_on_sedo_at === null}
+                    <div class="row mb-3">
+                        <label for="sedo_account">SEDO Account</label>
+                        <input type="text" name="sedo_account" id="sedo_account"  class="form-control" value={currentDomain.sedo_account.name} disabled>
+                    </div>
+                    <div class="row mb-3">
+                        <AlertBox type="warning">
+                            <strong>&#x26A0; Note:</strong> You can verify <b>{currentDomain.domain}</b> on SEDO by adding a <b>DNS TXT Record</b> with this values:
+                            <br>
+                            Host: <b>blank</b> or <b>@</b>
+                            <br>
+                            Value: <b>{currentDomain.sedo_account.domain_ownership_id}</b>
+                            <br>
+                            <br>
+                            This is described <a href="https://sedo.com/member/ownership_verification.php" target="_blank" rel="noreferrer">here</a>
+                        </AlertBox>
+                    </div>
+                {/if}
+
                 {#if currentDomain.sedo_account === null && currentDomain.registered}
 
                     <div class="row mb-3">
