@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Settings;
 use Illuminate\Http\Request;
 
 class WhoisController extends Controller
@@ -26,11 +27,13 @@ class WhoisController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\Response|\Inertia\Response|\Inertia\ResponseFactory
      */
     public function index()
     {
-        //
+        return Inertia('Dashboard/Whois', [
+            'allowedTdls' => Settings::get('allowedTdls')
+        ]);
     }
 
     /**

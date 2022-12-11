@@ -6,19 +6,19 @@
     import Switch from "../../Components/Checkboxes/Switch.svelte";
     import Spinner from "../../Components/Spinners/Spinner.svelte";
 
-    export let namecheapSettings = []
+    export let allowedTdls = ''
     // export let currentUser = {}
 
     // console.log('currentUser: ', currentUser)
-    console.log('namecheapSettings: ', namecheapSettings)
+    // console.log('settings: ', settings)
 
     const formData = {
-        ...namecheapSettings
+        // ...settings
+        allowedTdls,
     }
 
     const spinners = {
         update: false,
-        deleteRow: false,
     }
 
     let formMessage = null
@@ -29,17 +29,15 @@
 
         spinners.update = true
 
-        axios.put(route('dashboard.namecheap.update'), formData)
+        axios.put(route('dashboard.settings.update'), formData)
             .then(res => res.data)
             .then(data => {
-                console.log('dashboard.namecheap.update: ', data)
+                console.log('dashboard.settings.update: ', data)
 
                 spinners.update = false
 
                 formSuccess = true
                 formMessage = data.message
-                namecheapSettings = data.namecheapSettings
-
             })
             .catch(err => {
                 spinners.update = false
@@ -53,7 +51,7 @@
 
 <DashboardLayout let:currentUser>
     <div class="position-relative container mx-auto p-5" style="max-width: 50%; ">
-        <h1 class="text-center">Namecheap Account Settings</h1>
+        <h1 class="text-center">Settings</h1>
 
         <div class="mx-auto">
             {#if formMessage}
@@ -68,15 +66,15 @@
         <div class="mx-auto">
             <form on:submit|preventDefault={onSubmit}>
 
-                {#each Object.entries(namecheapSettings) as [key, value]}
-                    <div class="row mb-3">
-                        <label for={key}>
-                            {key.split(/(?=[A-Z])/).join(' ')}
-                        </label>
+                <div class="row mb-3">
+                    <label for="allowedTdls">
+                        Domain TDLs (.com, .info, ecc)
+                        <br>
+                        (One per line)
+                    </label>
 
-                        <input type="text" class="form-control" name={key} bind:value={formData[key]} id={key} required />
-                    </div>
-                {/each}
+                    <textarea bind:value={formData.allowedTdls} name="allowedTdls" id="allowedTdls" cols="30" rows="10"></textarea>
+                </div>
 
                 <div class="row mb-3">
                     <button class="btn btn-primary btn-red w-100" type="submit">
@@ -84,7 +82,7 @@
                             <Spinner />
                         {/if}
 
-                        Update Namecheap Info
+                        Update Settings
                     </button>
                 </div>
 

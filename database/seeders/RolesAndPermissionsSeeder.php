@@ -18,6 +18,7 @@ class RolesAndPermissionsSeeder extends Seeder
         Permission::create(['name' => 'domains.manage']);
         Permission::create(['name' => 'sedo.manage']);
         Permission::create(['name' => 'namecheap.manage']);
+        Permission::create(['name' => 'settings.manage']);
 
         $userPermissions = [
             Permission::create(['name' => 'domains.request']),

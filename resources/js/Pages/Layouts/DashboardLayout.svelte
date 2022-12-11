@@ -47,6 +47,13 @@
             bgColor: '#d5ecfc',
             permissions: ['users.manage'],
         },
+        {
+            label: 'Settings',
+            route: 'dashboard.settings.index',
+            faIcon: 'fa-solid fa-gear',
+            bgColor: '#d5ecfc',
+            permissions: ['settings.manage'],
+        },
     ]
 
     const currentUser = LaraUser(user)

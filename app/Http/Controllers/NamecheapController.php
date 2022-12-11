@@ -16,7 +16,7 @@ class NamecheapController extends Controller
     public function index()
     {
         return Inertia::render('Dashboard/Admin/Namecheap', [
-            'settings' => Settings::get('namecheap'),
+            'namecheapSettings' => Settings::get('namecheap'),
         ]);
     }
 
@@ -78,6 +78,7 @@ class NamecheapController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage(),
+                'line' => $e->getLine(),
             ], 500);
         }
 
@@ -85,7 +86,7 @@ class NamecheapController extends Controller
             'success' => true,
             'message' => 'Namecheap Info Updated Successfully',
             'request' => $request->all(),
-            'settings' => Settings::get('namecheap'),
+            'namecheapSettings' => Settings::get('namecheap'),
         ]);
     }
 

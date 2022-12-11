@@ -54,7 +54,7 @@
                         <i class="fa-sharp fa-solid fa-address-card"></i>
                     </div>
                     <div class="col">
-                        <a href="#settings">Settings</a>
+                        <a href={route('dashboard.settings.index')}>Settings</a>
                     </div>
                 </div>
 

@@ -15,7 +15,7 @@ class Settings extends Model
 
     public static function get(string $key) {
 
-        return static::where('key', $key)->first()->value;
+        return static::where('key', $key)->first()->value ?? [];
 
     }
 

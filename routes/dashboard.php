@@ -1,16 +1,12 @@
 <?php
 
-use App\Models\FtpServer;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 
-Route::get('/', function () {
-    return Inertia('Dashboard/Whois');
-})->name('index');
+Route::get('/', [\App\Http\Controllers\WhoisController::class, 'index'])->name('index');
 
 
 Route::resource('me', \App\Http\Controllers\MeController::class)->only(
@@ -46,6 +42,12 @@ Route::resource('namecheap', \App\Http\Controllers\NamecheapController::class)->
 ])
 ->parameters([
     'namecheap' => 'namecheap?'
+]);
+
+Route::resource('settings', \App\Http\Controllers\SettingsController::class)->only([
+    'index', 'update', 'store', 'destroy',
+])->parameters([
+    'settings' => 'settings?'
 ]);
 
 Route::get('/roles-and-permissions', function () {

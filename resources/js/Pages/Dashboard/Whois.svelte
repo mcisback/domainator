@@ -7,6 +7,8 @@
     import AlertBox from "../Components/Alerts/AlertBox.svelte";
     import {intervalLoop} from "../Helpers/intervalLoop";
 
+    export let allowedTdls = []
+
     let isAvailable = null
     let domainsText = null
     let domains = []
@@ -15,6 +17,7 @@
     let domainsToRegister = []
     let domainsToRegisterAll = false
     let nAvailableDomains = 0
+    let canSubmit = true
 
     const initFormData = () => {
         return {
@@ -91,6 +94,7 @@
 
             checkedDomains[domain].message =  data.message
             checkedDomains[domain].isAvailable = data.isAvailable
+            checkedDomains[domain].price = data.price
             checkedDomains[domain].spinner = false
 
             if(data.isAvailable === true) {
@@ -115,8 +119,43 @@
     const onSubmit = () => {
         const intervalTime = 1000
 
-        domains = domainsText.split("\n")
+        canSubmit = true
 
+        const domainsToCheck = domainsText.split("\n")
+        const domains = []
+
+        for(let i = 0; i < domainsToCheck.length; i++) {
+            const domain = domainsToCheck[i]
+            const isDomain = domain.match(/(\.[\w\d]+){1,2}$/gi)
+
+            console.log(`Checking ${domain}: `, isDomain)
+
+            if(!!isDomain) { // Is A Domain
+                console.log(`${domain} is a domain`)
+
+                const tdl = isDomain[0]
+
+                if(!allowedTdls.includes(tdl)) {
+                    formMessage = `${domain} is not allowed`
+                    formSuccess = false
+                    canSubmit = false
+
+                    console.log(formMessage)
+
+                    break
+                } else {
+                    domains.push(domain)
+                }
+            } else { // Is String
+                console.log(`${domain} is a string`)
+
+                allowedTdls.forEach(tdl => {
+                    domains.push(domain + tdl)
+                })
+            }
+        }
+
+        console.log('canSubmit: ', canSubmit)
         console.log('Domains Text: ', domainsText)
         console.log('Checking domains: ', domains)
 
@@ -125,10 +164,14 @@
         console.log('availableDomains: ', availableDomains)
         console.log('domainsToRegisterAll: ', domainsToRegisterAll)
 
-        if(nAvailableDomains === 0) {
-            intervalLoop(domains, checkDomainAvailability, intervalTime)
-        } else {
-            intervalLoop(domainsToRegister, requestDomainRegistration, intervalTime)
+        if(canSubmit) {
+            formSuccess = null
+
+            if (nAvailableDomains === 0) {
+                intervalLoop(domains, checkDomainAvailability, intervalTime)
+            } else {
+                intervalLoop(domainsToRegister, requestDomainRegistration, intervalTime)
+            }
         }
     }
 
@@ -179,12 +222,14 @@
         <div class="row mb-5 mx-auto">
             <form on:submit|preventDefault={onSubmit}>
                 <div class="row">
-                    <label for="domains">Domains (one per line)</label>
+                    <label for="domains">
+                        Domains (one per line
+                        <br>
+                        Allowed TDLs: {allowedTdls.join(', ')}
+                    </label>
 
                     <div class="input-group mb-3">
                         <textarea name="domains" id="domains" class="form-control" bind:value={domainsText} cols="30" rows="10" required disabled={nAvailableDomains > 0}></textarea>
-
-
                     </div>
                 </div>
 
@@ -233,16 +278,20 @@
                         </th>
 
                         <th>
+                            Price
+                        </th>
+
+                        <th>
                             Message
                         </th>
                     </tr>
                 </thead>
 
                 <tbody>
-                    {#each Object.entries(checkedDomains) as [domain, {isAvailable, requested, spinner, message}], i}
+                    {#each Object.entries(checkedDomains) as [domain, {isAvailable, isPremium, requested, spinner, message, price}], i}
                         <tr>
                             <td>
-                                <input type="checkbox" name={`domainsToRegister${i}`} id={`domainsToRegister${i}`} disabled={!isAvailable} bind:group={domainsToRegister} value={domain} checked={domainsToRegister.includes(domain)}>
+                                <input type="checkbox" name={`domainsToRegister${i}`} id={`domainsToRegister${i}`} disabled={!isAvailable && !isPremium} bind:group={domainsToRegister} value={domain} checked={domainsToRegister.includes(domain)}>
                             </td>
                             <td>
                                 {#if spinner}
@@ -289,12 +338,16 @@
                             </td>
 
                             <td>
+                                {price}
+                            </td>
+
+                            <td>
                                 {message}
                             </td>
                         </tr>
                     {:else}
                         <tr>
-                            <td colspan={5}>
+                            <td colspan={6}>
                                 No Domains Yet
                             </td>
                         </tr>

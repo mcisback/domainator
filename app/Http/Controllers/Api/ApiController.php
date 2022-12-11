@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Api\Namecheap\NamecheapApi;
+use App\Facades\Namecheap;
 use App\Http\Controllers\Controller;
-use GotCreations\Namecheap\Facade\Namecheap;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -39,17 +40,38 @@ class ApiController extends Controller
             ]);
         }
 
+//        $domain = new \Utopia\Domains\Domain($domain);
+//        $tdl = $domain->getSuffix();
+//
+        $namecheapApi = new NamecheapApi();
+//
+//        try {
+//            $pricing = $namecheapApi->getTDLPricing($tdl)[1];
+//        } catch(\Exception $e) {
+//            return response()->json([
+//                'success' => false,
+//                'message' => $e->getMessage(),
+//                'line' => $e->getLine(),
+//                'isAvailable' => false,
+//                'domain' => $domain,
+//                'tdl' => $tdl,
+//            ]);
+//        }
+
         // Creating default configured client
-        $whois = \Iodev\Whois\Factory::get()->createWhois();
+//        $whois = \Iodev\Whois\Factory::get()->createWhois();
 
         // Checking availability
-        if ($whois->isDomainAvailable($domain)) {
-//        if( Namecheap::check($domain) ) {
+//        if ($whois->isDomainAvailable($domain->getRegisterable())) {
+        $isAvailable = $namecheapApi->domainsCheckAvailability($domain);
+        if( $isAvailable["available"] ) {
             return response()->json([
                 'success' => true,
                 'message' => 'Domain is available',
                 'isAvailable' => true,
                 'domain' => $domain,
+                'price' => $isAvailable["price"],
+                'isPremium' => $isAvailable["isPremium"],
             ]);
         }
 
