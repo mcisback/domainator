@@ -278,7 +278,7 @@
                         </th>
 
                         <th>
-                            Price
+                            Price (USD)
                         </th>
 
                         <th>
