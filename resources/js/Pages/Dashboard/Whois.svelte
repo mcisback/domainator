@@ -81,10 +81,10 @@
 
         console.log('checkDomainAvailability() Checking: ', domain)
 
-        axios.post(route('api.index', {
+        axios.post(route('api.index'), {
             action: 'checkDomain',
             domain
-        }))
+        })
         .then(res => res.data)
         .then(data => {
             console.log('Response data: ', data)
@@ -111,6 +111,8 @@
             console.log('Err: ', err.response.data)
         })
     }
+
+    const intervalTime = 1000
 
     const onSubmit = () => {
 
@@ -171,8 +173,6 @@
     }
 
     const createDomainRegistrationRequest = () => {
-        const intervalTime = 1000
-
         console.log('createDomainRegistrationRequest()')
 
         axios.post(route('dashboard.domainRegistrationRequests.store'))

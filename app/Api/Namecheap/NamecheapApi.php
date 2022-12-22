@@ -55,7 +55,7 @@ class NamecheapApi
             $this->isSuccessful = ( (string) $this->xml->attributes()->Status ) === "OK";
 
             if(!$this->isSuccessful) {
-                $errorString = join("\n", (string) $this->xml->Errors);
+                $errorString = join("\n", (array) $this->xml->Errors);
 
                 throw new \Exception("Namecheap Error: " . $errorString);
             }

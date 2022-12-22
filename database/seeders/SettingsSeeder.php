@@ -58,6 +58,14 @@ class SettingsSeeder extends Seeder
                     'AuxBillingPhone' => '+36.40242242',
                     'AuxBillingEmailAddress' => 'me@iamattila.com',
                 ],
+            ],
+            [
+                'key' => 'allowedTdls',
+                'value' => [
+                    '.com',
+                    '.info',
+                    '.xyz',
+                ],
             ]
         ];
 
