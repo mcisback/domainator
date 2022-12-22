@@ -21,6 +21,10 @@ Route::resource('sedoAccounts', \App\Http\Controllers\SedoAccountController::cla
     'index', 'update', 'store', 'destroy',
 ]);
 
+Route::resource('domainRegistrationRequests', \App\Http\Controllers\DomainRegistrationRequestController::class)->only([
+    'index', 'update', 'store', 'destroy',
+]);
+
 Route::resource('domains', \App\Http\Controllers\DomainController::class)->only([
     'index', 'update', 'store', 'destroy',
 ]);

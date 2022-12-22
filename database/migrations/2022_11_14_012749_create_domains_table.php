@@ -19,6 +19,8 @@ class CreateDomainsTable extends Migration
             $table->string('domain')->unique();
             $table->boolean('registered')->default(false);
 
+            $table->decimal('price', 8, 2)->nullable();
+
             $table->unsignedBigInteger('submitted_by_user_id')->nullable();
             $table->foreign('submitted_by_user_id')
                 ->references('id')

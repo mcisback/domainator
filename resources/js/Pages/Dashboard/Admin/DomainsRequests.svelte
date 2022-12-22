@@ -1,19 +1,14 @@
 <script>
     import route from 'ziggy-js';
-    import moment from 'moment';
 
     import DashboardLayout from '../../Layouts/DashboardLayout.svelte'
-    import ModelTable from "../../Components/ModelTable.svelte";
-    import {onMount} from "svelte";
 
-    import {LaraUser} from '../../../user';
-    import {color} from "quill/ui/icons";
     import AlertBox from "../../Components/Alerts/AlertBox.svelte";
     import { slide } from 'svelte/transition';
     import Spinner from "../../Components/Spinners/Spinner.svelte";
     import Switch from "../../Components/Checkboxes/Switch.svelte";
 
-    export let domains = []
+    export let domainRequests = []
     export let sedoAccounts = []
     export let sedoCategories = []
     export let sedoLanguages = []
@@ -61,7 +56,7 @@
 
     }
 
-    console.log('domains: ', domains)
+    console.log('domainRequests: ', domainRequests)
     console.log('sedoAccounts: ', sedoAccounts)
     console.log('sedoCategories: ', sedoCategories)
     console.log('sedoLanguages: ', sedoLanguages)
@@ -71,7 +66,7 @@
 
         console.log('registerDomain() Sending domain: ', domain)
 
-        axios.post(route('dashboard.domains.register', {
+        axios.post(route('dashboard.domainRequests.register', {
             domain: domain.id
         }), {
             enableWhoisProtection
@@ -83,7 +78,7 @@
             spinners.registerDomain = false
             formSuccess = data.success
             formMessage = data.message
-            domains = data.domains
+            domainRequests = data.domainRequests
 
             currentDomain.registered = data.success
         })
@@ -102,7 +97,7 @@
 
         console.log('addDomainToSEDO() Sending domain: ', {domain, sedoCategoryIds, sedoLanguage})
 
-        axios.post(route('dashboard.domains.addToSedo', {
+        axios.post(route('dashboard.domainRequests.addToSedo', {
             domain: domain.id,
             sedoAccount: currentSedoAccountId
         }), {
@@ -120,9 +115,9 @@
                 spinners.addDomainToSEDO = false
                 formSuccess = data.success
                 formMessage = data.message
-                domains = data.domains
+                domainRequests = data.domainRequests
 
-                currentDomain = updateCurrentDomain(domain, data.domains)
+                currentDomain = updateCurrentDomain(domain, data.domainRequests)
             })
             .catch(err => {
                 spinners.addDomainToSEDO = false
@@ -139,7 +134,7 @@
 
         console.log('deleteDomain() Sending domain: ', domain)
 
-        axios.delete(route('dashboard.domains.destroy', {
+        axios.delete(route('dashboard.domainRequests.destroy', {
             domain: domain.id
         }))
         .then(res => res.data)
@@ -149,7 +144,7 @@
             spinners.deleteDomain = false
             formSuccess = data.success
             formMessage = data.message
-            domains = data.domains
+            domainRequests = data.domainRequests
 
             currentDomain = null
         })
@@ -163,14 +158,14 @@
         })
     }
 
-    const updateCurrentDomain = (domain, domains) => {
-        return domains.filter(d => d.domain === domain.domain)[0]
+    const updateCurrentDomain = (domain, domainRequests) => {
+        return domainRequests.filter(d => d.domain === domain.domain)[0]
     }
 
     const verifyDomainOnSEDO = (domain) =>  {
         spinners.verifyDomainOnSEDO = true
 
-        axios.post(route('dashboard.domains.sedoVerify', {
+        axios.post(route('dashboard.domainRequests.sedoVerify', {
             domain: domain.id,
             sedoAccount: domain.sedo_account.id
         }))
@@ -181,9 +176,9 @@
                 spinners.verifyDomainOnSEDO = false
                 formSuccess = data.success
                 formMessage = data.message
-                domains = data.domains
+                domainRequests = data.domainRequests
 
-                currentDomain = updateCurrentDomain(domain, data.domains)
+                currentDomain = updateCurrentDomain(domain, data.domainRequests)
             })
             .catch(err => {
                 spinners.verifyDomainOnSEDO = false
@@ -199,7 +194,7 @@
 
 <DashboardLayout let:props let:sections let:currentUser>
     <div class="container w-100 p-4">
-        <h1 class="text-center">Domains Requests</h1>
+        <h1 class="text-center">Domain Requests</h1>
         <h2 class="text-center">(Click Rows For Domain Tools)</h2>
 
         <div class="row mb-3">
@@ -246,7 +241,7 @@
 
                     <div class="row mb-3">
                         <AlertBox type="warning">
-                            <strong>&#x26A0; Note:</strong> Adding Domains To SEDO does not have an immediate effect as domains first have to pass a couple of checks before they get added to an account. You will be notified via eMail in case any checks fail.
+                            <strong>&#x26A0; Note:</strong> Adding domainRequests To SEDO does not have an immediate effect as domainRequests first have to pass a couple of checks before they get added to an account. You will be notified via eMail in case any checks fail.
                             <br>
                             This is how SEDO API works.
                         </AlertBox>
@@ -399,7 +394,7 @@
 
         {#if sedoAccounts.length > 0}
 
-            {#if domains.length > 0}
+            {#if domainRequests.length > 0}
                 <div class="row">
 
                     <table class="table table-striped">
@@ -414,8 +409,13 @@
                         </thead>
 
                         <tbody>
-                            {#each domains as domain, i}
-                                <tr on:click={() => currentDomain = domains[i]}>
+                            {#each domainRequests as domain, i}
+                                <tr on:click={() => currentDomain = domainRequests[i]}>
+
+                                    <td>
+                                        {domain.domains.join(',')}
+                                    </td>
+
                                     {#each columns as col}
                                         {#if col === 'approved_by_user'}
                                             <td>
@@ -535,14 +535,14 @@
                 </div>
             {:else}
                 <div class="row mb-3">
-                    No Domains Requests Yet
+                    No domainRequests Requests Yet
                 </div>
             {/if}
         {:else}
             <div class="row mb-3">
                 No SEDO Accounts
                 <br>
-                Add A SEDO Account to approve domains
+                Add A SEDO Account to approve domainRequests
             </div>
         {/if}
     </div>

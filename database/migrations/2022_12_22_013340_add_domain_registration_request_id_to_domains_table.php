@@ -31,7 +31,7 @@ class AddDomainRegistrationRequestIdToDomainsTable extends Migration
     public function down()
     {
         Schema::table('domains', function (Blueprint $table) {
-            //
+            $table->dropConstrainedForeignId('domain_registration_request_id');
         });
     }
 }

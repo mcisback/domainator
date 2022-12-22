@@ -18,6 +18,7 @@
     let domainsToRegisterAll = false
     let nAvailableDomains = 0
     let canSubmit = true
+    let domainRegistrationRequestId = null
 
     const initFormData = () => {
         return {
@@ -44,7 +45,8 @@
         console.log('requestDomainRegistration() Requesting: ', domain)
 
         axios.post(route('dashboard.domains.store'), {
-            domain
+            domain,
+            domainRegistrationRequestId
         })
         .then(res => res.data)
         .then(data => {
@@ -69,8 +71,6 @@
 
     const checkDomainAvailability = (domain) => {
 
-        // availableDomains = {}
-
         checkedDomains[domain] = {
             domain,
             isAvailable: false,
@@ -90,7 +90,6 @@
             console.log('Response data: ', data)
             console.log('Checked: ', checkedDomains[domain])
 
-            // formSuccess = data.success
 
             checkedDomains[domain].message =  data.message
             checkedDomains[domain].isAvailable = data.isAvailable
@@ -101,15 +100,12 @@
                 nAvailableDomains++
 
                 availableDomains[domain] = checkedDomains[domain]
-
-                // domainsToRegister.push(domain)
             }
 
         })
         .catch(err => {
             checkedDomains[domain].spinner = false
 
-            // formSuccess = false
             checkedDomains[domain].message =  err.response.data.message
 
             console.log('Err: ', err.response.data)
@@ -117,7 +113,6 @@
     }
 
     const onSubmit = () => {
-        const intervalTime = 1000
 
         canSubmit = true
 
@@ -170,9 +165,28 @@
             if (nAvailableDomains === 0) {
                 intervalLoop(domains, checkDomainAvailability, intervalTime)
             } else {
-                intervalLoop(domainsToRegister, requestDomainRegistration, intervalTime)
+                createDomainRegistrationRequest()
             }
         }
+    }
+
+    const createDomainRegistrationRequest = () => {
+        const intervalTime = 1000
+
+        console.log('createDomainRegistrationRequest()')
+
+        axios.post(route('dashboard.domainRegistrationRequests.store'))
+            .then(res => res.data)
+            .then(data => {
+                console.log('Response data: ', data)
+
+                domainRegistrationRequestId = data.domainRegistrationRequestId
+
+                intervalLoop(domainsToRegister, requestDomainRegistration, intervalTime)
+            })
+            .catch(err => {
+                console.log('Err: ', err.response.data)
+            })
     }
 
     const checkAll = () => {
@@ -180,7 +194,7 @@
 
         if(domainsToRegisterAll === true) {
             Object.entries(availableDomains).forEach(([domain, domainData]) => {
-                domainsToRegister.push(domain)
+                domainsToRegister.push({domain, price: domainData.price})
             })
         }
     }

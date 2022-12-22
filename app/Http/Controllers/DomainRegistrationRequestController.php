@@ -2,19 +2,30 @@
 
 namespace App\Http\Controllers;
 
+use App\Api\Sedo\SedoApi;
+use App\Models\Domain;
 use App\Models\DomainRegistrationRequest;
+use App\Models\SedoAccount;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class DomainRegistrationRequestController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\Response|\Inertia\Response
      */
     public function index()
     {
-        //
+        return Inertia::render('Dashboard/Admin/DomainsRequests', [
+            'domainRequests' => DomainRegistrationRequest::all(),
+            'sedoAccounts' => SedoAccount::all(),
+            'sedoCategories' => SedoApi::getDomainCategories(),
+            'sedoLanguages' => SedoApi::getDomainLanguages(),
+        ]);
     }
 
     /**
@@ -31,11 +42,28 @@ class DomainRegistrationRequestController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      */
     public function store(Request $request)
     {
-        //
+        try {
+            $domainRegistrationRequest = \App\Models\DomainRegistrationRequest::create([
+                'submitted_by_user_id' => Auth::id(),
+                'submitted_at' => Carbon::now(),
+            ]);
+        } catch(\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+                'line' => $e->getLine(),
+            ], 500);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Domain Registration Request Craeted Successful',
+            'domainRegistrationRequestId' => $domainRegistrationRequest->id,
+        ]);
     }
 
     /**

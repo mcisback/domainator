@@ -27,12 +27,7 @@ class DomainController extends Controller
      */
     public function index()
     {
-        return Inertia::render('Dashboard/Admin/DomainsRequests', [
-            'domains' => Domain::all(),
-            'sedoAccounts' => SedoAccount::all(),
-            'sedoCategories' => SedoApi::getDomainCategories(),
-            'sedoLanguages' => SedoApi::getDomainLanguages(),
-        ]);
+
     }
 
     /**
@@ -54,10 +49,12 @@ class DomainController extends Controller
     public function store(Request $request)
     {
         $domain = $request->get('domain');
+        $domainRegistrationRequestId = $request->get('domainRegistrationRequestId');
 
         try {
             \App\Models\Domain::create([
                 'domain' => $domain,
+                'domain_registration_request_id' => $domainRegistrationRequestId,
                 'submitted_by_user_id' => Auth::id(),
                 'submitted_at' => Carbon::now(),
             ]);

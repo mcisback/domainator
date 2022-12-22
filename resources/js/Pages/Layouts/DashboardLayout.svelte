@@ -21,7 +21,7 @@
         },
         {
             label: 'Domains',
-            route: 'dashboard.domains.index',
+            route: 'dashboard.domainRegistrationRequests.index',
             faIcon: 'fa-solid fa-book-atlas',
             bgColor: '#d5ecfc',
             permissions: ['domains.manage'],
