@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateDomainsTable extends Migration
+class CreateDomainRegistrationRequestsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,10 @@ class CreateDomainsTable extends Migration
      */
     public function up()
     {
-        Schema::create('domains', function (Blueprint $table) {
+        Schema::create('domain_registration_requests', function (Blueprint $table) {
             $table->id();
 
-            $table->string('domain')->unique();
-            $table->boolean('registered')->default(false);
-
-            $table->unsignedBigInteger('submitted_by_user_id')->nullable();
+            $table->unsignedBigInteger('submitted_by_user_id');
             $table->foreign('submitted_by_user_id')
                 ->references('id')
                 ->on('users');
@@ -50,6 +47,6 @@ class CreateDomainsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('domains');
+        Schema::dropIfExists('domain_registration_requests');
     }
 }

@@ -5,26 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Domain extends Model
+class DomainRegistrationRequest extends Model
 {
     use HasFactory;
 
     protected $with = [
-        'sedoAccount',
-        'submittedByUser',
-        'approvedByUser',
+        'domains'
     ];
 
-    protected $fillable = [
-        'domain',
-        'registered',
-        'submitted_by_user_id',
-        'approved_by_user_id',
-        'sedo_account_id',
-        'submitted_at',
-        'registered_at',
-        'approved_at',
-    ];
+    public function domains() {
+        return $this->hasMany(Domain::class);
+    }
 
     public function submittedByUser() {
         return $this->belongsTo(User::class, 'submitted_by_user_id');
@@ -36,9 +27,5 @@ class Domain extends Model
 
     public function sedoAccount() {
         return $this->belongsTo(SedoAccount::class, 'sedo_account_id');
-    }
-
-    public function domainRegistrationRequest() {
-        $this->hasOne(DomainRegistrationRequest::class, 'domain_registration_request_id');
     }
 }
