@@ -13,6 +13,10 @@ class DomainRegistrationRequest extends Model
         'domains'
     ];
 
+    protected $fillable = [
+        'submitted_by_user_id'
+    ];
+
     public function domains() {
         return $this->hasMany(Domain::class);
     }
