@@ -20,6 +20,7 @@ class Domain extends Model
         'registered',
         'submitted_by_user_id',
         'approved_by_user_id',
+        'domain_registration_request_id',
         'sedo_account_id',
         'submitted_at',
         'registered_at',
