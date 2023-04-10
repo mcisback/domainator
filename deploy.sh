@@ -21,3 +21,4 @@ php artisan migrate
 
 php artisan optimize:clear
 
+echo "[$(git log --format="%H" -n 1)][Run Manually]: Deployed at $(date +'%d/%m/%Y %H:%M:%S')" > .deployed

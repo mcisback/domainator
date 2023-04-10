@@ -35,6 +35,7 @@ connect.sh
 .viminfo
 .local
 .phpenv
+.deployed
 mojo_whitelist/
 ssh
 
