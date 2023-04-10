@@ -427,7 +427,7 @@
                                                     <span style="color: green;">
                                                         <i class="fa-solid fa-check"></i>
                                                         &nbsp;
-                                                        {domain[col].username}
+                                                        {domain[col].username ?? 'Not Found'}
                                                     </span>
                                                 {/if}
                                             </td>

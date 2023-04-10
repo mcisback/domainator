@@ -14,7 +14,9 @@ class DomainRegistrationRequest extends Model
     ];
 
     protected $fillable = [
-        'submitted_by_user_id'
+        'submitted_by_user_id',
+        'approved_by_user_id',
+        'sedo_account_id'
     ];
 
     public function domains() {
