@@ -33,10 +33,10 @@ class DomainRegistrationRequestController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+/*    public function create()
     {
         //
-    }
+    }*/
 
     /**
      * Store a newly created resource in storage.
@@ -72,10 +72,10 @@ class DomainRegistrationRequestController extends Controller
      * @param  \App\Models\DomainRegistrationRequest  $domainRegistrationRequest
      * @return \Illuminate\Http\Response
      */
-    public function show(DomainRegistrationRequest $domainRegistrationRequest)
+/*    public function show(DomainRegistrationRequest $domainRegistrationRequest)
     {
         //
-    }
+    }*/
 
     /**
      * Show the form for editing the specified resource.
@@ -83,10 +83,10 @@ class DomainRegistrationRequestController extends Controller
      * @param  \App\Models\DomainRegistrationRequest  $domainRegistrationRequest
      * @return \Illuminate\Http\Response
      */
-    public function edit(DomainRegistrationRequest $domainRegistrationRequest)
+/*    public function edit(DomainRegistrationRequest $domainRegistrationRequest)
     {
         //
-    }
+    }*/
 
     /**
      * Update the specified resource in storage.
@@ -95,10 +95,10 @@ class DomainRegistrationRequestController extends Controller
      * @param  \App\Models\DomainRegistrationRequest  $domainRegistrationRequest
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, DomainRegistrationRequest $domainRegistrationRequest)
+/*    public function update(Request $request, DomainRegistrationRequest $domainRegistrationRequest)
     {
         //
-    }
+    }*/
 
     /**
      * Remove the specified resource from storage.
