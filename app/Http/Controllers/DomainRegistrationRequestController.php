@@ -106,8 +106,8 @@ class DomainRegistrationRequestController extends Controller
      * @param  \App\Models\DomainRegistrationRequest  $domainRegistrationRequest
      * @return \Illuminate\Http\Response
      */
-    public function destroy(DomainRegistrationRequest $domainRegistrationRequest)
+/*    public function destroy(DomainRegistrationRequest $domainRegistrationRequest)
     {
         //
-    }
+    }*/
 }
