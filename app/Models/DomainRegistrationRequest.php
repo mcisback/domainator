@@ -10,7 +10,10 @@ class DomainRegistrationRequest extends Model
     use HasFactory;
 
     protected $with = [
-        'domains'
+        'domains',
+        'sedoAccount',
+        'submittedByUser',
+        'approvedByUser',
     ];
 
     protected $fillable = [

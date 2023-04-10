@@ -46,6 +46,7 @@
 
         axios.post(route('dashboard.domains.store'), {
             domain,
+            price: checkedDomains[domain].price,
             domainRegistrationRequestId
         })
         .then(res => res.data)

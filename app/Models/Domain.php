@@ -17,6 +17,7 @@ class Domain extends Model
 
     protected $fillable = [
         'domain',
+        'price',
         'registered',
         'submitted_by_user_id',
         'approved_by_user_id',
