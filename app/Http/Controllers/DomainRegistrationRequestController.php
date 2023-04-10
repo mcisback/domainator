@@ -61,7 +61,7 @@ class DomainRegistrationRequestController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Domain Registration Request Craeted Successful',
+            'message' => 'Domain Registration Request Created Successful',
             'domainRegistrationRequestId' => $domainRegistrationRequest->id,
         ]);
     }
