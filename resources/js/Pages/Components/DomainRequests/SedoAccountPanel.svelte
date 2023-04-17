@@ -7,6 +7,7 @@
     import {verifyDomainOnSEDO} from "../../PageFunctions/DomainRequests/verifyDomainOnSEDO";
     import {addDomainToSEDO} from "../../PageFunctions/DomainRequests/addDomainToSEDO";
     import {deleteDomain} from "../../PageFunctions/DomainRequests/deleteDomain";
+    import {intervalLoop} from "../../Helpers/intervalLoop";
 
     export let domainRequests = {}
     export let form = {}
@@ -17,9 +18,11 @@
     export let sedoLanguages = []
     export let spinners = []
 
-    let domainsToProcessAll = false
+    let doCheckAll = false
     let domainsToProcess = []
     let checkedDomains = {}
+
+    spinners['domainsSpinner'] = {}
 
     Object.entries(currentDomainRequest.domains).forEach(([index, {domain}]) => {
         checkedDomains[domain] = true
@@ -38,12 +41,17 @@
         domainsToProcess = []
 
         console.log('Object.entries(currentDomainRequest.domains): ', Object.entries(currentDomainRequest.domains))
-        console.log('domainsToProcessAll: ', domainsToProcessAll)
+        console.log('domainsToProcessAll: ', document)
 
-        if(domainsToProcessAll === true) {
+        if(doCheckAll === true) {
             Object.entries(currentDomainRequest.domains).forEach(([index, domain]) => {
                 checkedDomains[domain.domain] = true
+
                 domainsToProcess.push(domain.domain)
+            })
+        } else {
+            Object.entries(currentDomainRequest.domains).forEach(([index, domain]) => {
+                checkedDomains[domain.domain] = false
             })
         }
 
@@ -53,6 +61,45 @@
 
     console.log('currentDomainRequest: ', currentDomainRequest)
     console.log('domainsToProcess: ', domainsToProcess)
+
+    function registerAllDomains() {
+        // currentDomainRequest, enableWhoisProtection, spinners, form, domainRequests
+
+        console.log('Going to register: ', domainsToProcess)
+
+        if (domainsToProcess.length <= 0) {
+            form.success = false
+            form.message = 'No Domain Selected for Registration'
+
+            return
+        }
+
+        intervalLoop(domainsToProcess, (domainName) => {
+            const domain = currentDomainRequest.domains.filter(domain => domain.domain === domainName)[0]
+
+            console.log('Registering domain: ',
+                domainName,
+                {
+                    domain,
+                    currentDomainRequest,
+                    enableWhoisProtection,
+                    spinners,
+                    form,
+                    domainRequests
+                }
+            )
+
+            registerDomain (
+                domain,
+                currentDomainRequest,
+                enableWhoisProtection,
+                spinners,
+                form,
+                domainRequests
+            )
+        })
+
+    }
 </script>
 
 <div class="row mb-3 p-4" transition:slide>
@@ -61,7 +108,7 @@
             <thead>
                 <tr>
                     <th>
-                        <input type="checkbox" name={`domainsToProcessAll`} id={`domainsToProcessAll`} bind:checked={domainsToProcessAll} on:change={checkAll} >
+                        <input type="checkbox" name={`domainsToProcessAll`} id={`domainsToProcessAll`} bind:checked={doCheckAll} on:change={checkAll} >
                     </th>
                     <th>Domain</th>
                 </tr>
@@ -71,7 +118,11 @@
                 {#each Object.entries(currentDomainRequest.domains) as [index, domain], i}
                     <tr>
                         <td>
-                            <input type="checkbox" name={`domainsToProcess[${i}]`} id={`domainsToProcess[${i}]`} disabled={domain.registered || null} bind:group={domainsToProcess} value={domain} checked={domainsToProcess.includes(domain)} on:change={() => console.log(domainsToProcess, domain, checkedDomains)}>
+                            {#if spinners.domainsSpinner[domain.domain]}
+                                <Spinner />
+                            {:else}
+                                <input type="checkbox" name={`domainsToProcess[${i}]`} id={`domainsToProcess[${i}]`} disabled={domain.registered || null} bind:group={domainsToProcess} value={domain.domain} checked={domainsToProcess.includes(domain.domain)} on:change={() => console.log('Checkbox domain: ', {index, domain: domain.domain, domainsToProcess, checkedDomains})}>
+                            {/if}
                         </td>
 
                         <td>
@@ -197,7 +248,7 @@
 
     <div class="row mb-3">
         <div class="col text-center">
-            <button class="btn btn-primary btn-red" on:click={() => registerDomain(currentDomainRequest, enableWhoisProtection, spinners, form, domainRequests)} disabled={currentDomainRequest.registered || null}>
+            <button class="btn btn-primary btn-red" on:click={() => registerAllDomains()} disabled={currentDomainRequest.registered || null}>
                 {#if spinners.registerDomain}
                     <i class="fa-solid fa-check"></i>
                     <Spinner />

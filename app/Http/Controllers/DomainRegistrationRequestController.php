@@ -104,10 +104,24 @@ class DomainRegistrationRequestController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  \App\Models\DomainRegistrationRequest  $domainRegistrationRequest
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
-/*    public function destroy(DomainRegistrationRequest $domainRegistrationRequest)
+    public function destroy(DomainRegistrationRequest $domainRegistrationRequest)
     {
-        //
-    }*/
+        try {
+            $domainRegistrationRequest->deleteOrFail();
+        } catch(\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+                'line' => $e->getLine(),
+            ], 500);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Domain Registration Request Deleted Successful',
+            'domainRequests' => DomainRegistrationRequest::all(),
+        ]);
+    }
 }

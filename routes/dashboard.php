@@ -29,6 +29,7 @@ Route::resource('domains', \App\Http\Controllers\DomainController::class)->only(
     'index', 'update', 'store', 'destroy',
 ]);
 
+// Register a domain using Namecheap API
 Route::post('/domains/register/{domain}', [\App\Http\Controllers\DomainController::class, 'register'])
     ->name('domains.register')
 ;

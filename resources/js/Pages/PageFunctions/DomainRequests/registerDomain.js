@@ -1,12 +1,13 @@
 import route from "ziggy-js";
 
-export function registerDomain (domain, enableWhoisProtection, spinners, form, domainRequests) {
+export function registerDomain (domain, domainRequest, enableWhoisProtection, spinners, form, domainRequests) {
     spinners.registerDomain = true
+    spinners.domainsSpinner[domain.domain] = true
 
     console.log('registerDomain() Sending domain: ', domain)
 
-    axios.post(route('dashboard.domainRequest.register', {
-        domain: domain.id
+    axios.post(route('dashboard.domains.register', {
+        domain: domain.id,
     }), {
         enableWhoisProtection
     })
@@ -14,7 +15,7 @@ export function registerDomain (domain, enableWhoisProtection, spinners, form, d
         .then(data => {
             console.log('registerDomain() Response data: ', data)
 
-            spinners.registerDomain = false
+            spinners.domainsSpinner[domain.domain] = false
             form.success = data.success
             form.message = data.message
             domainRequests = data.domainRequests
@@ -22,7 +23,7 @@ export function registerDomain (domain, enableWhoisProtection, spinners, form, d
             domain.registered = data.success
         })
         .catch(err => {
-            spinners.registerDomain = false
+            spinners.domainsSpinner[domain.domain] = false
 
             form.success = false
             form.message = err.response.data.message

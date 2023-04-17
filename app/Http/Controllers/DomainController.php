@@ -48,13 +48,13 @@ class DomainController extends Controller
      */
     public function store(Request $request)
     {
-        $domain = $request->get('domain');
+        $domainName = $request->get('domain');
         $price = $request->get('price') ?? null;
         $domainRegistrationRequestId = $request->get('domainRegistrationRequestId');
 
         try {
             \App\Models\Domain::create([
-                'domain' => $domain,
+                'domain' => $domainName,
                 'price' => $price,
                 'domain_registration_request_id' => $domainRegistrationRequestId,
                 'submitted_by_user_id' => Auth::id(),
@@ -73,7 +73,7 @@ class DomainController extends Controller
             'success' => true,
             'requested' => true,
             'message' => 'Domain Registration Request Successful',
-            'domain' => $domain,
+            'domain' => $domainName,
             'isAvailable' => false
         ]);
     }
@@ -147,6 +147,8 @@ class DomainController extends Controller
 
                 $domain->registered = true;
                 $domain->registered_at = $nowTimestamp;
+
+                $domain->price = $response["ChargedAmount"];
 
                 $domain->save();
             } else {

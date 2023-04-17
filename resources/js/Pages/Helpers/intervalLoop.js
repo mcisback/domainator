@@ -1,5 +1,5 @@
 /** Make A Loop Interval */
-export function intervalLoop(records, callback, time) {
+export function intervalLoop(records, callback, time=500) {
     let count = 0
 
     const interval = setInterval(() => {
