@@ -8,6 +8,7 @@
     import {addDomainToSEDO} from "../../PageFunctions/DomainRequests/addDomainToSEDO";
     import {deleteDomain} from "../../PageFunctions/DomainRequests/deleteDomain";
     import {intervalLoop} from "../../Helpers/intervalLoop";
+    import {deleteDomainsRequest} from "../../PageFunctions/DomainRequests/deleteDomainsRequest";
 
     export let domainRequests = {}
     export let form = {}
@@ -18,7 +19,7 @@
     export let sedoLanguages = []
     export let spinners = []
 
-    let doCheckAll = false
+    let doCheckAll = true
     let domainsToProcess = []
     let checkedDomains = {}
 
@@ -127,6 +128,16 @@
 
                         <td>
                             <input type="text" name={`domain[${i}]`} id={`domain[${i}]`} class="form-control" value={domain.domain} disabled>
+                        </td>
+
+                        <td>
+                            <button
+                                class="btn btn-primary btn-red"
+                                on:click={() => console.log('[NOT IMPLEMENTED] Deleting domain: ', domain.domain)}
+                                disabled={domain.registered || null}
+                            >
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
                         </td>
                     </tr>
                 <br>
@@ -291,8 +302,8 @@
         {/if}
 
         <div class="col text-center">
-            <button class="btn btn-primary btn-red" on:click={() => deleteDomain(currentDomainRequest, spinners, form, domainRequests)} disabled={(currentDomainRequest.registered || null)}>
-                {#if spinners.deleteDomain}
+            <button class="btn btn-primary btn-red" on:click={() => deleteDomainsRequest(currentDomainRequest, spinners, form, domainRequests)} disabled={(currentDomainRequest.registered || null)}>
+                {#if spinners.deleteDomainsRequest}
                     <i class="fa-solid fa-trash"></i>
                     <Spinner />
                 {:else}

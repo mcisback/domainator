@@ -19,7 +19,11 @@ composer dump-autoload
 
 npm install && npm run $env
 
-php artisan migrate
+if [ "$env" = "dev" ]; then
+    php artisan migrate:fresh
+else
+    php artisan migrate
+fi
 
 php artisan optimize:clear
 

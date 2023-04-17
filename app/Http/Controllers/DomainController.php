@@ -137,6 +137,8 @@ class DomainController extends Controller
 
             $response = $namecheapApi->registerDomain($domain->domain, $domainData);
 
+            dd($response);
+
             if($response["Registered"] === true || $response["Registered"] === "true") {
                 $response = "Domain {$response["Domain"]} successfully registered for {$response["ChargedAmount"]}";
 

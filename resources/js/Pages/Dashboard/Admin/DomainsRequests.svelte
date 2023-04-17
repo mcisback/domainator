@@ -42,6 +42,7 @@
     let spinners = {
         registerDomain: false,
         deleteDomain: false,
+        deleteDomainsRequest: false,
         addDomainToSEDO: false,
         verifyDomainOnSEDO: false,
     }

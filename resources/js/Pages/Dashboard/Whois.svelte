@@ -190,6 +190,7 @@
             })
     }
 
+    // Doesn't work
     const checkAll = () => {
         domainsToRegister = []
 

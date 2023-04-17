@@ -18,7 +18,8 @@ class AddDomainRegistrationRequestIdToDomainsTable extends Migration
             $table->unsignedBigInteger('domain_registration_request_id');
             $table->foreign('domain_registration_request_id')
                 ->references('id')
-                ->on('domain_registration_requests');
+                ->on('domain_registration_requests')
+                ->cascadeOnDelete();
 
         });
     }

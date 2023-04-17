@@ -2,7 +2,7 @@ import route from "ziggy-js";
 
 // Delete Domain
 export function deleteDomainsRequest (domainRequest, spinners, form, domainRequests) {
-    spinners.deleteDomain = true
+    spinners.deleteDomainsRequest = true
 
     console.log('deleteDomain() Sending domain Reuquest: ', domainRequest)
 
@@ -13,7 +13,7 @@ export function deleteDomainsRequest (domainRequest, spinners, form, domainReque
         .then(data => {
             console.log('deleteDomainsRequest() Response data: ', data)
 
-            spinners.deleteDomain = false
+            spinners.deleteDomainsRequest = false
             form.success = data.success
             form.message = data.message
             domainRequests = data.domainRequests
@@ -21,7 +21,7 @@ export function deleteDomainsRequest (domainRequest, spinners, form, domainReque
             domainRequest = null
         })
         .catch(err => {
-            spinners.deleteDomain = false
+            spinners.deleteDomainsRequest = false
 
             form.success = false
             form.message = err.response.data.message
