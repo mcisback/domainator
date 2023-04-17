@@ -71,7 +71,7 @@
                 {#each Object.entries(currentDomainRequest.domains) as [index, domain], i}
                     <tr>
                         <td>
-                            <input type="checkbox" name={`domainsToProcess[${i}]`} id={`domainsToProcess[${i}]`} disabled={domain.registered || null} bind:group={domainsToProcess} value={domain} checked={domainsToProcess.includes(domain)}>
+                            <input type="checkbox" name={`domainsToProcess[${i}]`} id={`domainsToProcess[${i}]`} disabled={domain.registered || null} bind:group={domainsToProcess} value={domain} checked={domainsToProcess.includes(domain)} on:change={() => console.log(domainsToProcess, domain, checkedDomains)}>
                         </td>
 
                         <td>
