@@ -1,24 +1,24 @@
 import route from "ziggy-js";
 
 // Delete Domain
-export function deleteDomain (domain, spinners, form, domainRequests) {
+export function deleteDomainsRequest (domainRequest, spinners, form, domainRequests) {
     spinners.deleteDomain = true
 
-    console.log('deleteDomain() Sending domain: ', domain)
+    console.log('deleteDomain() Sending domain Reuquest: ', domainRequest)
 
-    axios.delete(route('dashboard.domainRequest.destroy', {
-        domain: domain.id
+    axios.delete(route('dashboard.domainRegistrationRequests.destroy', {
+        domainRegistrationRequest: domainRequest.id
     }))
         .then(res => res.data)
         .then(data => {
-            console.log('deleteDomain() Response data: ', data)
+            console.log('deleteDomainsRequest() Response data: ', data)
 
             spinners.deleteDomain = false
             form.success = data.success
             form.message = data.message
             domainRequests = data.domainRequests
 
-            domain = null
+            domainRequest = null
         })
         .catch(err => {
             spinners.deleteDomain = false
