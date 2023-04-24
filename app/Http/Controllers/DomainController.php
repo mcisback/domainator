@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Api\Namecheap\NamecheapApi;
 use App\Api\Sedo\SedoApi;
 use App\Models\Domain;
+use App\Models\DomainRegistrationRequest;
 use App\Models\SedoAccount;
 use App\Models\Settings;
 use Illuminate\Http\Request;
@@ -139,6 +140,10 @@ class DomainController extends Controller
 
             // dd($response);
 
+            var_dump($response);
+
+            dd($response);
+
             if($response["Registered"] === true || $response["Registered"] === "true") {
                 $response = "Domain {$response["Domain"]} successfully registered for {$response["ChargedAmount"]}";
 
@@ -163,6 +168,7 @@ class DomainController extends Controller
                 'requested' => false,
                 'message' => $e->getMessage() . ' ' . $domain->domain,
                 'line' => $e->getLine(),
+                'domainRequests' => DomainRegistrationRequest::all(),
             ], 500);
         }
 
@@ -171,6 +177,7 @@ class DomainController extends Controller
 //            'message' => 'Namecheap Domain Registration Successful',
             "message" => $response,
             'domains' => Domain::all(),
+            'domainRequests' => DomainRegistrationRequest::all(),
         ]);
     }
 
@@ -222,6 +229,7 @@ class DomainController extends Controller
                 'success' => false,
                 'message' => "SEDO Error: " . $e->getMessage(),
                 'line' => $e->getLine(),
+                'domainRequests' => DomainRegistrationRequest::all(),
             ], 500);
         }
 
@@ -233,6 +241,7 @@ class DomainController extends Controller
             'message' => 'Domains Added To SEDO Successful',
             'domains' => Domain::all(),
             'sedoDomains' => $response,
+            'domainRequests' => DomainRegistrationRequest::all(),
         ]);
     }
 
@@ -293,6 +302,7 @@ class DomainController extends Controller
                 'requested' => false,
                 'message' => $e->getMessage(),
                 'line' => $e->getLine(),
+                'domainRequests' => DomainRegistrationRequest::all(),
             ], 500);
         }
 
@@ -300,6 +310,7 @@ class DomainController extends Controller
             'success' => true,
             'message' => 'Domain Deleted',
             'domains' => Domain::all(),
+            'domainRequests' => DomainRegistrationRequest::all(),
         ]);
     }
 }

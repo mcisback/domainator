@@ -115,6 +115,7 @@ class DomainRegistrationRequestController extends Controller
                 'success' => false,
                 'message' => $e->getMessage(),
                 'line' => $e->getLine(),
+                'domainRequests' => DomainRegistrationRequest::all(),
             ], 500);
         }
 

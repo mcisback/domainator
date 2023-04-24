@@ -13,7 +13,7 @@
 
     const sections = [
         {
-            label: 'Add Domain',
+            label: 'Add Domains',
             route: 'dashboard.index',
             faIcon: 'fa-solid fa-globe',
             bgColor: '#d5ecfc',

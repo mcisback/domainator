@@ -11,7 +11,7 @@
     import {deleteDomainsRequest} from "../../PageFunctions/DomainRequests/deleteDomainsRequest";
     import {promiseChainSequence} from "../../Helpers/promiseChainSequence";
 
-    export let domainRequests = {}
+    export let domainRequests = []
     export let form = {}
     export let currentDomainRequest = {}
     export let currentSedoAccountId = null
@@ -107,33 +107,34 @@
                 spinners,
                 form,
                 domainRequests
-            ).then(data => {
-                console.log('registerDomain() Response data: ', data)
+            )
+                .then(data => {
+                    console.log('registerDomain() Response data: ', data)
 
-                spinners.domainsSpinner[domain.domain] = false
-                form.success = data.success
-                form.message += data.message + `\n<br>`
-                domainRequests = data.domainRequests
+                    spinners.domainsSpinner[domain.domain] = false
+                    form.success = data.success
+                    form.message += data.message + `\n<br>`
+                    domainRequests = data.domainRequests
 
-                domain.registered = data.success
+                    domain.registered = data.success
 
-                spinners.registerDomain = false
-            })
-            .catch(err => {
-                spinners.domainsSpinner[domain.domain] = false
+                    spinners.registerDomain = false
+                })
+                .catch(err => {
+                    spinners.domainsSpinner[domain.domain] = false
 
-                form.success = false
-                form.message += err.response.data.message + `\n<br>`
+                    form.success = false
+                    form.message += err.response.data.message + `\n<br>`
 
-                console.log('Err: ', err.response.data)
+                    console.log('Err: ', err.response.data)
 
-                spinners.registerDomain = false
-            })
+                    spinners.registerDomain = false
+                })
         })
 
     }
 
-    function pageDeleteDomainRequest(currentDomainRequest) {
+    function pageDeleteDomainRequest() {
         spinners.deleteDomainsRequest = true
 
         deleteDomainsRequest(currentDomainRequest)
@@ -147,7 +148,7 @@
                 currentDomainRequest = null
 
                 spinners.deleteDomainsRequest = false
-        })
+            })
             .catch(err => {
                 spinners.deleteDomainsRequest = false
 
@@ -360,7 +361,7 @@
         {/if}
 
         <div class="col text-center">
-            <button class="btn btn-primary btn-red" on:click={() => pageDeleteDomainRequest(currentDomainRequest)} disabled={(currentDomainRequest.registered || null)}>
+            <button class="btn btn-primary btn-red" on:click={() => pageDeleteDomainRequest()} disabled={(currentDomainRequest.registered || null)}>
                 {#if spinners.deleteDomainsRequest}
                     <i class="fa-solid fa-trash"></i>
                     <Spinner />
