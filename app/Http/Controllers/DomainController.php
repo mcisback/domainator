@@ -136,16 +136,15 @@ class DomainController extends Controller
             unset($domainData['ApiUser']);
             unset($domainData['ApiKey']);
 
-            $response = $namecheapApi->registerDomain($domain->domain, $domainData);
+            $response = (array)$namecheapApi->registerDomain($domain->domain, $domainData);
+            $response = $response["@attributes"];
 
             // dd($response);
 
-            var_dump($response);
-
-            dd($response);
+            // var_dump($response);
 
             if($response["Registered"] === true || $response["Registered"] === "true") {
-                $response = "Domain {$response["Domain"]} successfully registered for {$response["ChargedAmount"]}";
+                $responseMessage = "Domain {$response["Domain"]} successfully registered for {$response["ChargedAmount"]}$";
 
                 $nowTimestamp = Carbon::now();
 
@@ -175,7 +174,7 @@ class DomainController extends Controller
         return response()->json([
             'success' => true,
 //            'message' => 'Namecheap Domain Registration Successful',
-            "message" => $response,
+            "message" => $responseMessage,
             'domains' => Domain::all(),
             'domainRequests' => DomainRegistrationRequest::all(),
         ]);

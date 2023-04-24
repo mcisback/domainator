@@ -180,7 +180,7 @@ class NamecheapApi
             ...$domainData,
         ]);
 
-        return $this->commandResponse()->DomainCreateResult->attributes;
+        return $this->commandResponse()->DomainCreateResult->attributes();
     }
 
     public function addDNSRecordsToDomain($domain, array $data) {
