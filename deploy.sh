@@ -20,7 +20,7 @@ composer dump-autoload
 npm install && npm run $env
 
 if [ "$env" = "dev" ]; then
-    php artisan migrate:fresh
+    php artisan migrate:fresh --seed
 else
     php artisan migrate
 fi
