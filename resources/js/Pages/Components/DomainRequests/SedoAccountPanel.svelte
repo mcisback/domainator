@@ -9,6 +9,7 @@
     import {deleteDomain} from "../../PageFunctions/DomainRequests/deleteDomain";
     import {intervalLoop} from "../../Helpers/intervalLoop";
     import {deleteDomainsRequest} from "../../PageFunctions/DomainRequests/deleteDomainsRequest";
+    import {promiseChainSequence} from "../../Helpers/promiseChainSequence";
 
     export let domainRequests = {}
     export let form = {}
@@ -75,7 +76,13 @@
             return
         }
 
-        intervalLoop(domainsToProcess, (domainName) => {
+        form.success = null
+        form.message = ''
+
+        promiseChainSequence(domainsToProcess, (domainName, res) => {
+
+            console.log('promiseChainSequence: ', domainName, res)
+
             const domain = currentDomainRequest.domains.filter(domain => domain.domain === domainName)[0]
 
             console.log('Registering domain: ',
@@ -90,16 +97,67 @@
                 }
             )
 
-            registerDomain (
+            spinners.registerDomain = true
+            spinners.domainsSpinner[domain.domain] = true
+
+            return registerDomain (
                 domain,
                 currentDomainRequest,
                 enableWhoisProtection,
                 spinners,
                 form,
                 domainRequests
-            )
+            ).then(data => {
+                console.log('registerDomain() Response data: ', data)
+
+                spinners.domainsSpinner[domain.domain] = false
+                form.success = data.success
+                form.message += data.message + `\n<br>`
+                domainRequests = data.domainRequests
+
+                domain.registered = data.success
+
+                spinners.registerDomain = false
+            })
+            .catch(err => {
+                spinners.domainsSpinner[domain.domain] = false
+
+                form.success = false
+                form.message += err.response.data.message + `\n<br>`
+
+                console.log('Err: ', err.response.data)
+
+                spinners.registerDomain = false
+            })
         })
 
+    }
+
+    function pageDeleteDomainRequest(currentDomainRequest) {
+        spinners.deleteDomainsRequest = true
+
+        deleteDomainsRequest(currentDomainRequest)
+            .then(data => {
+                console.log('deleteDomainsRequest() Response data: ', data)
+
+                spinners.deleteDomainsRequest = false
+                form.success = data.success
+                form.message = data.message
+                domainRequests = data.domainRequests
+                currentDomainRequest = null
+
+                spinners.deleteDomainsRequest = false
+        })
+            .catch(err => {
+                spinners.deleteDomainsRequest = false
+
+                form.success = false
+                form.message = err.response.data.message
+
+                console.log('Err: ', err.response.data)
+
+                spinners.deleteDomainsRequest = false
+            })
     }
 </script>
 
@@ -302,13 +360,13 @@
         {/if}
 
         <div class="col text-center">
-            <button class="btn btn-primary btn-red" on:click={() => deleteDomainsRequest(currentDomainRequest, spinners, form, domainRequests)} disabled={(currentDomainRequest.registered || null)}>
+            <button class="btn btn-primary btn-red" on:click={() => pageDeleteDomainRequest(currentDomainRequest)} disabled={(currentDomainRequest.registered || null)}>
                 {#if spinners.deleteDomainsRequest}
                     <i class="fa-solid fa-trash"></i>
                     <Spinner />
                 {:else}
                     <i class="fa-solid fa-trash"></i>
-                    Delete
+                    Delete All
                 {/if}
             </button>
         </div>

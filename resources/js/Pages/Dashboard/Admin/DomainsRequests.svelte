@@ -64,7 +64,7 @@
                 {#if form.message}
                     <div transition:slide>
                         <AlertBox bind:success={form.success}>
-                            <span>{form.message}</span>
+                            <span>{@html form.message}</span>
                         </AlertBox>
                     </div>
                 {/if}
