@@ -72,16 +72,18 @@
         </div>
 
         {#if currentDomainRequest !== null}
-            <SedoAccountPanel
-                bind:currentDomainRequest={currentDomainRequest}
-                bind:currentSedoAccountId={currentSedoAccountId}
-                bind:sedoAccount={sedoAccounts}
-                bind:sedoLanguages={sedoLanguages}
-                bind:sedoCategories={sedoCategories}
-                bind:domainRequests={domainRequests}
-                bind:spinners={spinners}
-                bind:form={form}
-            />
+            {#key currentDomainRequest}
+                <SedoAccountPanel
+                    bind:currentDomainRequest={currentDomainRequest}
+                    bind:currentSedoAccountId={currentSedoAccountId}
+                    bind:sedoAccounts={sedoAccounts}
+                    bind:sedoLanguages={sedoLanguages}
+                    bind:sedoCategories={sedoCategories}
+                    bind:domainRequests={domainRequests}
+                    bind:spinners={spinners}
+                    bind:form={form}
+                />
+            {/key}
         {/if}
 
         {#if sedoAccounts.length > 0}
@@ -102,7 +104,10 @@
 
                         <tbody>
                             {#each domainRequests as domainRequest, i}
-                                <tr on:click={() => currentDomainRequest = domainRequests[i]}>
+                                <tr on:click={() => {
+                                    currentDomainRequest = null
+                                    currentDomainRequest = domainRequests[i]
+                                }}>
 
                                     {#each columns as col}
                                         {#if col === 'domains'}
