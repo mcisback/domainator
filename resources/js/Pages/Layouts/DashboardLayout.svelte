@@ -49,7 +49,7 @@
         },
         {
             label: 'Reports',
-            route: 'dashboard.users.index',
+            route: 'dashboard.reports.index',
             faIcon: 'fa-solid fa-magnifying-glass-chart',
             bgColor: '#d5ecfc',
             permissions: ['users.manage'],
