@@ -43,6 +43,6 @@ class Domain extends Model
     }
 
     public function domainRegistrationRequest() {
-        $this->hasOne(DomainRegistrationRequest::class, 'domain_registration_request_id');
+        return $this->hasOne(DomainRegistrationRequest::class, 'id', 'domain_registration_request_id');
     }
 }

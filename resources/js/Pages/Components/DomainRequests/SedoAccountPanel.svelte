@@ -14,7 +14,7 @@
 
     export let domainRequests = []
     export let form = {}
-    export let currentDomainRequest = {}
+    export let currentDomainRequest = null
     export let currentSedoAccountId = null
     export let sedoAccounts = []
     export let sedoCategories = []
@@ -164,7 +164,14 @@
 
     }
 
-    function pageAddDomainsToSEDO(sedoCategoryIds, sedoLanguage, isForSale, price, minprice, fixedprice, spinners, form, domainRequests) {
+    function pageAddDomainsToSEDO(
+        sedoCategoryIds,
+        sedoLanguage,
+        isForSale,
+        price,
+        minprice,
+        fixedprice
+    ) {
         spinners.addDomainToSEDO = true
 
         const domainsToSEDO = currentDomainRequest.domains.filter(domain => domain.registered === true)
@@ -198,6 +205,8 @@
                     console.log('addDomainToSEDO() Response data: ', data)
 
                     spinners.addDomainToSEDO = false
+                    spinners.domainsSpinner[domain.domain] = false
+
                     form.success = data.success
                     form.message = data.message
                     domainRequests = data.domainRequests
@@ -206,6 +215,7 @@
                 })
                 .catch(err => {
                     spinners.addDomainToSEDO = false
+                    spinners.domainsSpinner[domain.domain] = false
 
                     form.success = false
                     form.message = err.response.data.message
@@ -230,8 +240,6 @@
                 spinners.deleteDomainsRequest = false
 
                 currentDomainRequest = null
-
-
             })
             .catch(err => {
                 spinners.deleteDomainsRequest = false
@@ -259,7 +267,18 @@
                 form.message = data.message
                 domainRequests = data.domainRequests
 
-                domain = null
+                if(data.isLastDomain === true) {
+                    console.log('isLastDomain: ', data.isLastDomain)
+
+                    currentDomainRequest = null
+                } else {
+                    console.log('Resetting domains to: ', data.domainRequestDomains)
+
+                    currentDomainRequest = {
+                        ...currentDomainRequest,
+                        domains: [...data.domainRequestDomains]
+                    }
+                }
             })
             .catch(err => {
                 spinners.deleteDomainsRequest = false
@@ -274,196 +293,205 @@
 
 </script>
 
-<div class="row mb-3 p-4" transition:slide>
-    {#if registeredCount > 0}
-        <div class="row mb-3">
-            <AlertBox type="warning">
-                <strong>&#x26A0; Note:</strong> Adding domainRequest To SEDO does not have an immediate effect as domainRequest first have to pass a couple of checks before they get added to an account. You will be notified via eMail in case any checks fail.
-                <br>
-                This is how SEDO API works.
-            </AlertBox>
-        </div>
-    {/if}
+{#if currentDomainRequest !== null}
 
-    <div class="row mb-3 fw-bold">
-        <table>
-            <thead>
-                <tr>
-                    <th>
-                        <input type="checkbox" name={`domainsToProcessAll`} id={`domainsToProcessAll`} bind:checked={doCheckAll} on:change={checkAll} >
-                    </th>
-                    <th>Domain</th>
-                </tr>
-            </thead>
+    <div class="row mb-3 p-4" transition:slide>
+        {#if registeredCount > 0}
+            <div class="row mb-3">
+                <AlertBox type="warning">
+                    <strong>&#x26A0; Note:</strong> Adding domainRequest To SEDO does not have an immediate effect as domainRequest first have to pass a couple of checks before they get added to an account. You will be notified via eMail in case any checks fail.
+                    <br>
+                    This is how SEDO API works.
+                </AlertBox>
+            </div>
+        {/if}
 
-            <tbody>
-                {#each Object.entries(currentDomainRequest.domains) as [index, domain], i}
+        <div class="row mb-3 fw-bold">
+            <table>
+                <thead>
                     <tr>
-                        <td>
-                            {#if spinners.domainsSpinner[domain.domain]}
-                                <Spinner />
-                            {:else}
-                                <input type="checkbox" name={`domainsToProcess[${i}]`} id={`domainsToProcess[${i}]`} disabled={domain.registered || null} bind:group={domainsToProcess} value={domain.domain} checked={domainsToProcess.includes(domain.domain)} on:change={() => console.log('Checkbox domain: ', {index, domain: domain.domain, domainsToProcess, checkedDomains})}>
-                            {/if}
-                        </td>
-
-                        <td>
-                            <input type="text" name={`domain[${i}]`} id={`domain[${i}]`} class="form-control" value={domain.domain} disabled>
-                        </td>
-
-                        <td>
-                            <button
-                                class="btn btn-primary btn-red"
-                                on:click={() => deleteDomain(domain)}
-                                disabled={domain.registered || null}
-                            >
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </td>
-                        {#if domain.isRegisteredButNotOnSEDO}
-                            <!-- Is Registered but not on SEDO -->
-                            <td>
-                                <TogglableArrow
-                                    bind:toggled={domain.toggled}
-                                />
-                            </td>
-                        {/if}
+                        <th>
+                            <input type="checkbox" name={`domainsToProcessAll`} id={`domainsToProcessAll`} bind:checked={doCheckAll} on:change={checkAll} >
+                        </th>
+                        <th>Domain</th>
                     </tr>
-                    {#if domain.isRegisteredButNotOnSEDO}
-                        {#key domain.toggled}
+                </thead>
 
-                            <!-- Is Registered but not on SEDO -->
+                <tbody>
+                    {#each Object.entries(currentDomainRequest.domains) as [index, domain], i}
+                        <tr>
+                            <td>
+                                {#if spinners.domainsSpinner[domain.domain]}
+                                    <Spinner />
+                                {:else}
+                                    <input type="checkbox" name={`domainsToProcess[${i}]`} id={`domainsToProcess[${i}]`} disabled={domain.registered || null} bind:group={domainsToProcess} value={domain.domain} checked={domainsToProcess.includes(domain.domain)} on:change={() => console.log('Checkbox domain: ', {index, domain: domain.domain, domainsToProcess, checkedDomains})}>
+                                {/if}
+                            </td>
+
+                            <td>
+                                <input type="text" name={`domain[${i}]`} id={`domain[${i}]`} class="form-control" value={domain.domain} disabled>
+                            </td>
+
+                            <td>
+                                <button
+                                    class="btn btn-primary btn-red"
+                                    on:click={() => pageDeleteSingleDomain(domain)}
+                                    disabled={domain.registered || null}
+                                >
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </td>
+                            {#if domain.isRegisteredButNotOnSEDO}
+                                <!-- Is Registered but not on SEDO -->
+                                <td>
+                                    <TogglableArrow
+                                        bind:toggled={domain.toggled}
+                                    />
+                                </td>
+                            {/if}
+                        </tr>
+                        {#if domain.isRegisteredButNotOnSEDO}
+                            {#key domain.toggled}
+
+                                <!-- Is Registered but not on SEDO -->
+                                <tr transition:slide>
+
+                                    <td colspan="3">
+
+                                        <SedoSelectAccount
+                                            bind:domain={domain}
+                                            bind:currentDomainRequest={currentDomainRequest}
+                                            bind:currentSedoAccountId={currentSedoAccountId}
+                                            bind:sedoAccounts={sedoAccounts}
+                                            bind:sedoCategories={sedoCategories}
+                                            bind:sedoLanguage={sedoLanguage}
+                                            bind:sedoLanguages={sedoLanguages}
+                                            bind:sedoCategoryIds={sedoCategoryIds}
+                                            bind:isForSale={isForSale}
+                                            bind:fixedprice={fixedprice}
+                                            bind:minprice={minprice}
+                                            bind:price={price}
+                                        />
+
+                                    </td>
+
+                                </tr>
+
+                            {/key}
+
+                        {:else if domain.isOnSEDOButNotVerified}
+                            <!-- Is it is on SEDO but not verified -->
                             <tr transition:slide>
 
                                 <td colspan="3">
 
-                                    <SedoSelectAccount
-                                        bind:domain={domain}
-                                        bind:currentDomainRequest={currentDomainRequest}
-                                        bind:currentSedoAccountId={currentSedoAccountId}
-                                        bind:sedoAccounts={sedoAccounts}
-                                        bind:sedoCategories={sedoCategories}
-                                        bind:sedoLanguage={sedoLanguage}
-                                        bind:sedoLanguages={sedoLanguages}
-                                        bind:sedoCategoryIds={sedoCategoryIds}
-                                        bind:isForSale={isForSale}
-                                        bind:fixedprice={fixedprice}
-                                        bind:minprice={minprice}
-                                        bind:price={price}
-                                    />
+                                    <div class="row mb-3">
+                                        <label for="sedo_account">SEDO Account</label>
+                                        <input type="text" name="sedo_account" id="sedo_account"  class="form-control" value={domain.sedo_account.name} disabled>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <AlertBox type="warning">
+                                            <strong>&#x26A0; Note:</strong> You can verify <b>{domain.domain}</b> on SEDO by adding a <b>DNS TXT Record</b> with this values:
+                                            <br>
+                                            Host: <b>blank</b> or <b>@</b>
+                                            <br>
+                                            Value: <b>{domain.sedo_account.domain_ownership_id}</b>
+                                            <br>
+                                            <br>
+                                            This is described <a href="https://sedo.com/member/ownership_verification.php" target="_blank" rel="noreferrer">here</a>
+                                        </AlertBox>
+                                    </div>
 
                                 </td>
 
                             </tr>
+                        {/if}
+                        <br>
+                    {/each}
+                </tbody>
+            </table>
 
-                        {/key}
-
-                    {:else if domain.isOnSEDOButNotVerified}
-                        <!-- Is it is on SEDO but not verified -->
-                        <tr transition:slide>
-
-                            <td colspan="3">
-
-                                <div class="row mb-3">
-                                    <label for="sedo_account">SEDO Account</label>
-                                    <input type="text" name="sedo_account" id="sedo_account"  class="form-control" value={domain.sedo_account.name} disabled>
-                                </div>
-                                <div class="row mb-3">
-                                    <AlertBox type="warning">
-                                        <strong>&#x26A0; Note:</strong> You can verify <b>{domain.domain}</b> on SEDO by adding a <b>DNS TXT Record</b> with this values:
-                                        <br>
-                                        Host: <b>blank</b> or <b>@</b>
-                                        <br>
-                                        Value: <b>{domain.sedo_account.domain_ownership_id}</b>
-                                        <br>
-                                        <br>
-                                        This is described <a href="https://sedo.com/member/ownership_verification.php" target="_blank" rel="noreferrer">here</a>
-                                    </AlertBox>
-                                </div>
-
-                            </td>
-
-                        </tr>
-                    {/if}
-                <br>
-            {/each}
-            </tbody>
-        </table>
-
-    </div>
-
-    <div class="row mb-3">
-        <div class="col text-center">
-            <button class="btn btn-primary btn-red" on:click={() => registerAllDomains()} disabled={registeredCount > 0 || null}>
-                {#if spinners.registerDomain}
-                    <i class="fa-solid fa-check"></i>
-                    <Spinner />
-                {:else}
-                    <i class="fa-solid fa-check"></i>
-                    Bulk Register
-                {/if}
-            </button>
         </div>
 
-        <div class="col text-center">
-            <button class="btn btn-primary btn-red"
-                    on:click={
-                        () => pageAddDomainsToSEDO(
-                            sedoCategoryIds,
-                            sedoLanguage,
-                            isForSale,
-                            price,
-                            minprice,
-                            fixedprice
-                        )}
-                    disabled={!(currentDomainRequest.sedo_account === null && registeredCount >= 1)}>
-                {#if spinners.addDomainToSEDO}
-                    <i class="fa-solid fa-plus"></i>
-                    <Spinner />
-                {:else}
-                    <i class="fa-solid fa-plus"></i>
-                    Bulk Add to SEDO
-                {/if}
-            </button>
-        </div>
-
-        <!-- Is Registered and on SEDO but not verified -->
-        {#if currentDomainRequest.registered && currentDomainRequest.sedo_account !== null}
-
-            <div class="col text-center" transition:slide>
-                <button class="btn btn-primary btn-red" on:click={() => verifyDomainOnSEDO(currentDomainRequest, spinners, form, domainRequests)}
-                        disabled={currentDomainRequest.verified_on_sedo_at || null}>
-                    {#if spinners.verifyDomainOnSEDO}
-                        <i class="fa-solid fa-certificate"></i>
+        <div class="row mb-3">
+            <div class="col text-center">
+                <button
+                    class="btn btn-primary btn-red"
+                    on:click={() => registerAllDomains()}
+                    disabled={registeredCount > 0 || null}
+                >
+                    {#if spinners.registerDomain}
+                        <i class="fa-solid fa-check"></i>
                         <Spinner />
                     {:else}
-                        <i class="fa-solid fa-certificate"></i>
-                        Bulk Verify Domain On SEDO
+                        <i class="fa-solid fa-check"></i>
+                        Bulk Register
                     {/if}
                 </button>
             </div>
 
+            <div class="col text-center">
+                <button class="btn btn-primary btn-red"
+                        on:click={
+                            () => pageAddDomainsToSEDO(
+                                sedoCategoryIds,
+                                sedoLanguage,
+                                isForSale,
+                                price,
+                                minprice,
+                                fixedprice
+                            )}
+                        disabled={!(currentDomainRequest.sedo_account === null && registeredCount >= 1)}>
+                    {#if spinners.addDomainToSEDO}
+                        <i class="fa-solid fa-plus"></i>
+                        <Spinner />
+                    {:else}
+                        <i class="fa-solid fa-plus"></i>
+                        Bulk Add to SEDO
+                    {/if}
+                </button>
+            </div>
+
+            <!-- Is Registered and on SEDO but not verified -->
+            {#if currentDomainRequest.registered && currentDomainRequest.sedo_account !== null}
+
+                <div class="col text-center" transition:slide>
+                    <button class="btn btn-primary btn-red" on:click={() => verifyDomainOnSEDO(currentDomainRequest, spinners, form, domainRequests)}
+                            disabled={currentDomainRequest.verified_on_sedo_at || null}>
+                        {#if spinners.verifyDomainOnSEDO}
+                            <i class="fa-solid fa-certificate"></i>
+                            <Spinner />
+                        {:else}
+                            <i class="fa-solid fa-certificate"></i>
+                            Bulk Verify Domain On SEDO
+                        {/if}
+                    </button>
+                </div>
+
+            {/if}
+
+            <div class="col text-center">
+                <button class="btn btn-primary btn-red" on:click={() => pageDeleteDomainsRequest()} disabled={(currentDomainRequest.registered || null)}>
+                    {#if spinners.deleteDomainsRequest}
+                        <i class="fa-solid fa-trash"></i>
+                        <Spinner />
+                    {:else}
+                        <i class="fa-solid fa-trash"></i>
+                        Bulk Delete All
+                    {/if}
+                </button>
+            </div>
+        </div>
+
+        {#if !currentDomainRequest.registered}
+            <div class="row mb-3">
+                <Switch id="whois_protection" bind:checked={enableWhoisProtection}>
+                    Whois Protection
+                </Switch>
+            </div>
         {/if}
 
-        <div class="col text-center">
-            <button class="btn btn-primary btn-red" on:click={() => pageDeleteDomainsRequest()} disabled={(currentDomainRequest.registered || null)}>
-                {#if spinners.deleteDomainsRequest}
-                    <i class="fa-solid fa-trash"></i>
-                    <Spinner />
-                {:else}
-                    <i class="fa-solid fa-trash"></i>
-                    Bulk Delete All
-                {/if}
-            </button>
-        </div>
     </div>
-
-    {#if !currentDomainRequest.registered}
-        <div class="row mb-3">
-            <Switch id="whois_protection" bind:checked={enableWhoisProtection}>
-                Whois Protection
-            </Switch>
-        </div>
-    {/if}
-
-</div>
+{:else}
+    No Domains In This Request, Click Another
+{/if}

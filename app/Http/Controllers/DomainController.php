@@ -293,8 +293,20 @@ class DomainController extends Controller
      */
     public function destroy(Domain $domain)
     {
+        $domainRequest = $domain->domainRegistrationRequest;
+
+        $domainName = $domain->domain;
+
+        $isLastDomain = $domainRequest->domains->count() <= 1;
+
         try {
+
             $domain->deleteOrFail();
+
+            if($isLastDomain) {
+                $domainRequest->deleteOrFail();
+            }
+
         } catch(\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -307,8 +319,10 @@ class DomainController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Domain Deleted',
+            'message' => "Domain \"$domainName\" Deleted",
             'domains' => Domain::all(),
+            'isLastDomain' => $isLastDomain,
+            'domainRequestDomains' => $isLastDomain ? null :DomainRegistrationRequest::find($domainRequest->id)->domains->all(),
             'domainRequests' => DomainRegistrationRequest::all(),
         ]);
     }
