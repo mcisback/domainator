@@ -1,6 +1,7 @@
 <script>
     import { slide } from 'svelte/transition';
     import AlertBox from "../Alerts/AlertBox.svelte";
+    import TogglableArrow from "../Widgets/ToggableArrow.svelte";
     import Switch from "../Checkboxes/Switch.svelte";
     import Spinner from "../Spinners/Spinner.svelte";
     import {registerDomain} from "../../PageFunctions/DomainRequests/registerDomain";
@@ -32,8 +33,13 @@
 
     spinners['domainsSpinner'] = {}
 
+    // Preprocess domains
     Object.entries(currentDomainRequest.domains).forEach(([index, domain]) => {
         const {domain: domainName, registered} = domain;
+
+        domain.toggled = true
+        domain.isRegisteredButNotOnSEDO = domain.sedo_account === null && domain.registered
+        domain.isOnSEDOButNotVerified = domain.sedo_account !== null && domain.verified_on_sedo_at === null
 
         checkedDomains[domainName] = true
         domainsToProcess.push(domainName)
@@ -56,7 +62,7 @@
     let fixedprice = false
     let isForSale = false
     let enableWhoisProtection = false
-    let sedoCategoryIds = null // value is null
+    let sedoCategoryIds = [] // value is null
     let sedoLanguage = 'en'
 
     const checkAll = () => {
@@ -158,12 +164,12 @@
 
     }
 
-    function pageAddDomainToSEDO(sedoCategoryIds, sedoLanguage, isForSale, price, minprice, fixedprice, spinners, form, domainRequests) {
+    function pageAddDomainsToSEDO(sedoCategoryIds, sedoLanguage, isForSale, price, minprice, fixedprice, spinners, form, domainRequests) {
         spinners.addDomainToSEDO = true
 
         const domainsToSEDO = currentDomainRequest.domains.filter(domain => domain.registered === true)
 
-        console.log('pageAddDomainToSEDO() Processing: ', domainsToSEDO)
+        console.log('pageAddDomainsToSEDO() Processing: ', domainsToSEDO)
 
         if(domainsToSEDO.length <= 0) {
             form.success = false
@@ -174,7 +180,7 @@
 
         promiseChainSequence(domainsToSEDO, (domain, res) => {
 
-            console.log('pageAddDomainToSEDO(), promiseChainSequence: ', domain, res)
+            console.log('pageAddDomainsToSEDO(), promiseChainSequence: ', domain, res)
 
             spinners.addDomainToSEDO = true
             spinners.domainsSpinner[domain.domain] = true
@@ -209,7 +215,7 @@
         })
     }
 
-    function pageDeleteDomainRequest() {
+    function pageDeleteDomainsRequest() {
         spinners.deleteDomainsRequest = true
 
         deleteDomainsRequest(currentDomainRequest)
@@ -229,6 +235,35 @@
             })
             .catch(err => {
                 spinners.deleteDomainsRequest = false
+
+                form.success = false
+                form.message = err.response.data.message
+
+                console.log('Err: ', err.response.data)
+            })
+    }
+
+    function pageDeleteSingleDomain(domain) {
+        spinners.deleteDomainsRequest = true
+        spinners.domainsSpinner[domain.domain] = true
+
+        console.log('pageDeleteSingleDomain() deleting domain: ', domain.domain)
+
+        deleteDomain(domain)
+            .then(data => {
+                console.log('pageDeleteSingleDomain() Response data: ', data)
+
+                spinners.deleteDomainsRequest = false
+                spinners.domainsSpinner[domain.domain] = false
+                form.success = data.success
+                form.message = data.message
+                domainRequests = data.domainRequests
+
+                domain = null
+            })
+            .catch(err => {
+                spinners.deleteDomainsRequest = false
+                spinners.domainsSpinner[domain.domain] = false
 
                 form.success = false
                 form.message = err.response.data.message
@@ -279,40 +314,51 @@
                         <td>
                             <button
                                 class="btn btn-primary btn-red"
-                                on:click={() => console.log('[NOT IMPLEMENTED] Deleting domain: ', domain.domain)}
+                                on:click={() => deleteDomain(domain)}
                                 disabled={domain.registered || null}
                             >
                                 <i class="fa-solid fa-trash"></i>
                             </button>
                         </td>
-                    </tr>
-                    {#if domain.sedo_account === null && domain.registered}
-
-                        <!-- Is Registered but not on SEDO -->
-                        <tr transition:slide>
-
-                            <td colspan="3">
-
-                                <SedoSelectAccount
-                                    bind:domain={domain}
-                                    bind:currentDomainRequest={currentDomainRequest}
-                                    bind:currentSedoAccountId={currentSedoAccountId}
-                                    bind:sedoAccounts={sedoAccounts}
-                                    bind:sedoCategories={sedoCategories}
-                                    bind:sedoLanguage={sedoLanguage}
-                                    bind:sedoLanguages={sedoLanguages}
-                                    bind:sedoCategoryIds={sedoCategoryIds}
-                                    bind:isForSale={isForSale}
-                                    bind:fixedprice={fixedprice}
-                                    bind:minprice={minprice}
-                                    bind:price={price}
+                        {#if domain.isRegisteredButNotOnSEDO}
+                            <!-- Is Registered but not on SEDO -->
+                            <td>
+                                <TogglableArrow
+                                    bind:toggled={domain.toggled}
                                 />
-
                             </td>
+                        {/if}
+                    </tr>
+                    {#if domain.isRegisteredButNotOnSEDO}
+                        {#key domain.toggled}
 
-                        </tr>
+                            <!-- Is Registered but not on SEDO -->
+                            <tr transition:slide>
 
-                    {:else if domain.sedo_account !== null && domain.verified_on_sedo_at === null}
+                                <td colspan="3">
+
+                                    <SedoSelectAccount
+                                        bind:domain={domain}
+                                        bind:currentDomainRequest={currentDomainRequest}
+                                        bind:currentSedoAccountId={currentSedoAccountId}
+                                        bind:sedoAccounts={sedoAccounts}
+                                        bind:sedoCategories={sedoCategories}
+                                        bind:sedoLanguage={sedoLanguage}
+                                        bind:sedoLanguages={sedoLanguages}
+                                        bind:sedoCategoryIds={sedoCategoryIds}
+                                        bind:isForSale={isForSale}
+                                        bind:fixedprice={fixedprice}
+                                        bind:minprice={minprice}
+                                        bind:price={price}
+                                    />
+
+                                </td>
+
+                            </tr>
+
+                        {/key}
+
+                    {:else if domain.isOnSEDOButNotVerified}
                         <!-- Is it is on SEDO but not verified -->
                         <tr transition:slide>
 
@@ -362,7 +408,7 @@
         <div class="col text-center">
             <button class="btn btn-primary btn-red"
                     on:click={
-                        () => pageAddDomainToSEDO(
+                        () => pageAddDomainsToSEDO(
                             sedoCategoryIds,
                             sedoLanguage,
                             isForSale,
@@ -400,7 +446,7 @@
         {/if}
 
         <div class="col text-center">
-            <button class="btn btn-primary btn-red" on:click={() => pageDeleteDomainRequest()} disabled={(currentDomainRequest.registered || null)}>
+            <button class="btn btn-primary btn-red" on:click={() => pageDeleteDomainsRequest()} disabled={(currentDomainRequest.registered || null)}>
                 {#if spinners.deleteDomainsRequest}
                     <i class="fa-solid fa-trash"></i>
                     <Spinner />
