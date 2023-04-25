@@ -195,10 +195,15 @@
         domainsToRegister = []
 
         if(domainsToRegisterAll === true) {
-            Object.entries(availableDomains).forEach(([domain, domainData]) => {
-                domainsToRegister.push({domain, price: domainData.price})
-            })
+            Object.entries(availableDomains)
+                .forEach(([domain, domainData]) => {
+                    // domainsToRegister.push({domain, price: domainData.price})
+
+                    domainsToRegister.push(domain)
+                })
         }
+
+        console.log('checkAll() domainsToRegister: ', domainsToRegister)
     }
 
     const clear = () => {
@@ -215,6 +220,12 @@
 
         formMessage = null
         formSuccess = false
+    }
+
+    const checkDomain = (domain) => {
+        console.log('checkDomain() domain: ', domain, domainsToRegister.filter(d => d === domain))
+
+        return domainsToRegister.includes(domain)
     }
 
 </script>
@@ -307,7 +318,15 @@
                     {#each Object.entries(checkedDomains) as [domain, {isAvailable, isPremium, requested, spinner, message, price}], i}
                         <tr>
                             <td>
-                                <input type="checkbox" name={`domainsToRegister${i}`} id={`domainsToRegister${i}`} disabled={!isAvailable && !isPremium} bind:group={domainsToRegister} value={domain} checked={domainsToRegister.includes(domain)}>
+                                <input
+                                    type="checkbox"
+                                    name={`domainsToRegister${i}`}
+                                    id={`domainsToRegister${i}`}
+                                    disabled={!isAvailable && !isPremium}
+                                    bind:group={domainsToRegister}
+                                    value={domain}
+                                    checked={() => checkDomain(domain)}
+                                >
                             </td>
                             <td>
                                 {#if spinner}
