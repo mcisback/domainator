@@ -17,6 +17,10 @@ Route::resource('users', \App\Http\Controllers\Admin\UserController::class)->onl
     'index', 'update', 'store', 'destroy',
 ]);
 
+Route::resource('reports', \App\Http\Controllers\ReportController::class)->only([
+    'index', 'update', 'store', 'destroy',
+]);
+
 Route::resource('sedoAccounts', \App\Http\Controllers\SedoAccountController::class)->only([
     'index', 'update', 'store', 'destroy',
 ]);

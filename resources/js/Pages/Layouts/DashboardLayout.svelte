@@ -48,6 +48,13 @@
             permissions: ['users.manage'],
         },
         {
+            label: 'Reports',
+            route: 'dashboard.users.index',
+            faIcon: 'fa-solid fa-magnifying-glass-chart',
+            bgColor: '#d5ecfc',
+            permissions: ['users.manage'],
+        },
+        {
             label: 'Settings',
             route: 'dashboard.settings.index',
             faIcon: 'fa-solid fa-gear',
