@@ -204,7 +204,7 @@ class NamecheapApi
             ...$dnsRecords,
         ]);
 
-        return $this->commandResponse()->DomainDNSSetHostsResult->attributes;
+        return $this->commandResponse()->DomainDNSSetHostsResult->attributes();
     }
 
     public function getTDLPricing(string $tdl) {
