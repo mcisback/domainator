@@ -9,6 +9,7 @@
     import { slide } from 'svelte/transition';
     import SedoAccountPanel from "../../Components/DomainRequests/SedoAccountPanel.svelte";
     import CondIcon from "../../Components/Widgets/CondIcon.svelte";
+    import {TABS_VALUES} from "../../Enums/tabsValue";
 
     export let domainRequests = []
     export let sedoAccounts = []
@@ -55,6 +56,29 @@
     console.log('sedoCategories: ', sedoCategories)
     console.log('sedoLanguages: ', sedoLanguages)
 
+    let startingTabValue = TABS_VALUES.REGISTER_TAB
+
+    const setDomainRequest = (i) => {
+        currentDomainRequest = null
+        currentDomainRequest = domainRequests[i]
+
+        if(!currentDomainRequest.sedo_account && !currentDomainRequest.verify_domain_on_sedo_at) {
+
+            startingTabValue = TABS_VALUES.ADD_TO_SEDO_TAB
+
+        }
+
+        if(!currentDomainRequest.verify_domain_on_sedo_at) {
+
+            startingTabValue = TABS_VALUES.VERIFY_DOMAIN_ON_SEDO
+
+        }
+
+        console.log('Starting Tab Value: ', (() => {
+            return Object.entries(TABS_VALUES).filter(([key, value]) => startingTabValue === value)[0]
+        })())
+    };
+
 </script>
 
 <DashboardLayout let:props let:sections let:currentUser>
@@ -85,6 +109,7 @@
                     bind:domainRequests={domainRequests}
                     bind:spinners={spinners}
                     bind:form={form}
+                    bind:startingTabValue={startingTabValue}
                 />
             {/key}
         {/if}
@@ -107,10 +132,7 @@
 
                         <tbody>
                             {#each domainRequests as domainRequest, i}
-                                <tr on:click={() => {
-                                    currentDomainRequest = null
-                                    currentDomainRequest = domainRequests[i]
-                                }}>
+                                <tr on:click={() => setDomainRequest(i)}>
 
                                     {#each columns as col}
                                         {#if col === 'domains'}

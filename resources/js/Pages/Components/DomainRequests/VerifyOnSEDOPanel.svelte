@@ -53,7 +53,7 @@ Object.entries(currentDomainRequest.domains).forEach(([index, domain]) => {
         fixedprice: false,
     }
 
-    if(!sedo_account) {
+    if(!!sedo_account) {
         sedoAccountCount++
     }
 
@@ -83,45 +83,34 @@ let sedoLanguage = 'en'
 const checkAll = () => {
     domainsToProcess = []
 
-    console.log('Object.entries(currentDomainRequest.domains): ', Object.entries(currentDomainRequest.domains))
-    console.log('domainsToProcessAll: ', document)
+    console.log('Filtered Object.entries(currentDomainRequest.domains): ', Object.entries(currentDomainRequest.domains)
+        .filter(([index, domain]) => !domain.verified_on_sedo_at))
 
-    if(doCheckAll === true) {
-        Object.entries(currentDomainRequest.domains)
-            .filter(([index, domain]) => !domain.verified_on_sedo_at)
-            .forEach(([index, domain]) => {
-                checkedDomains[domain.domain].checked = true
+    Object.entries(currentDomainRequest.domains)
+        .filter(([index, domain]) => domain.verified_on_sedo_at === null)
+        .forEach(([index, domain]) => {
+            checkedDomains[domain.domain].checked = doCheckAll
 
+            if(doCheckAll === true) {
                 domainsToProcess.push(domain.domain)
-            })
-    } else {
-        Object.entries(currentDomainRequest.domains)
-            .filter(([index, domain]) => !domain.verified_on_sedo_at)
-            .forEach(([index, domain]) => {
-                checkedDomains[domain.domain].checked = false
-            })
-    }
+            }
+        })
 
     console.log('domainsToProcess: ', domainsToProcess)
     console.log('checkedDomains: ', checkedDomains)
 }
 
+checkAll()
+
 console.log('currentDomainRequest: ', currentDomainRequest)
 console.log('domainsToProcess: ', domainsToProcess)
 
-function pageAddDomainsToSEDO(
-    sedoCategoryIds,
-    sedoLanguage,
-    isForSale,
-    price,
-    minprice,
-    fixedprice
-) {
-    spinners.addDomainToSEDO = true
+function pageVerifyDomainsOnSEDO() {
+    spinners.verifyDomainsOnSEDO = true
 
-    const domainsToSEDO = currentDomainRequest.domains.filter(domain => domain.registered === true)
+    const domainsToSEDO = currentDomainRequest.domains.filter(domain => domainsToProcess.includes(domain.domain))
 
-    console.log('pageAddDomainsToSEDO() Processing: ', domainsToSEDO)
+    console.log('pageVerifyDomainsOnSEDO() Processing: ', domainsToSEDO)
 
     if(domainsToSEDO.length <= 0) {
         form.success = false
@@ -132,19 +121,18 @@ function pageAddDomainsToSEDO(
 
     promiseChainSequence(domainsToSEDO, (domain, res) => {
 
-        console.log('pageAddDomainsToSEDO(), promiseChainSequence: ', domain, res)
+        console.log('pageVerifyDomainsOnSEDO(), promiseChainSequence: ', domain, res)
 
-        spinners.addDomainToSEDO = true
+        spinners.verifyDomainsOnSEDO = true
         spinners.domainsSpinner[domain.domain] = true
 
-        return addDomainToSEDO(
+        return verifyDomainOnSEDO(
             domain,
-            sedoCategoryIds,
         )
             .then(data => {
-                console.log('addDomainToSEDO() Response data: ', data)
+                console.log('verifyDomainOnSEDO() Response data: ', data)
 
-                spinners.addDomainToSEDO = false
+                spinners.verifyDomainsOnSEDO = false
                 spinners.domainsSpinner[domain.domain] = false
 
                 form.success = data.success
@@ -152,9 +140,13 @@ function pageAddDomainsToSEDO(
                 domainRequests = data.domainRequests
 
                 domain = updateCurrentDomain(domain, data.domainRequest)
+
+                currentDomainRequest = {
+                    ...currentDomainRequest
+                }
             })
             .catch(err => {
-                spinners.addDomainToSEDO = false
+                spinners.verifyDomainsOnSEDO = false
                 spinners.domainsSpinner[domain.domain] = false
 
                 form.success = false
@@ -167,79 +159,94 @@ function pageAddDomainsToSEDO(
 
 </script>
 
-<div class="row mb-3 fw-bold">
-    <table>
-        <thead>
-        <tr>
-            <th>
-                <input type="checkbox" name={`domainsToProcessAll`} id={`domainsToProcessAll`} bind:checked={doCheckAll} on:change={checkAll} disabled={(verifiedCount === currentDomainRequest.domains.length) || sedoAccountCount === 0}}>
-            </th>
-            <th>Domain</th>
-        </tr>
-        </thead>
+{#if currentDomainRequest.sedo_account}
+    <div class="row mb-3">
+        <label for="sedo_account">SEDO Account</label>
+        <input type="text" name="sedo_account" id="sedo_account"  class="form-control" value={currentDomainRequest.sedo_account.name} disabled>
+    </div>
+    <div class="row mb-3">
+        <AlertBox type="warning">
+            <strong>&#x26A0; Note:</strong> You can MANUALLY verify a domain on SEDO by adding a <b>DNS TXT Record</b> with this values:
+            <br>
+            Host: <b>blank</b> or <b>@</b>
+            <br>
+            Value: <b>{currentDomainRequest.sedo_account.domain_ownership_id}</b>
+            <br>
+            <br>
+            This is described <a href="https://sedo.com/member/ownership_verification.php" target="_blank" rel="noreferrer">here</a>
+            <br>
+            <br>
+            By Clicking "Bulk Verify Domain On SEDO", it will be set automatic
+            on all checked domains a TXT DNS Record with correct values using Namecheap API.
+            <br>
+            If the domain doesn't use Namecheap DNS, it will not work.
+            <br>
+            You might still need to verify it manually or double check it.
+        </AlertBox>
+    </div>
 
-        <tbody>
-        {#each Object.entries(currentDomainRequest.domains) as [index, domain], i}
+    <div class="row mb-3 fw-bold">
+        <table>
+            <thead>
             <tr>
-                <td>
-                    {#if spinners.domainsSpinner[domain.domain]}
-                        <Spinner />
-                    {:else}
-                        <input type="checkbox" name={`domainsToProcess[${i}]`} id={`domainsToProcess[${i}]`} disabled={(domain.sedo_account && domain.verified_on_sedo_at)|| null} bind:group={domainsToProcess} value={domain.domain} checked={domainsToProcess.includes(domain.domain)} on:change={() => console.log('Checkbox domain: ', {index, domain: domain.domain, domainsToProcess, checkedDomains})}>
-                    {/if}
-                </td>
-
-                <td>
-                    <input type="text" name={`domain[${i}]`} id={`domain[${i}]`} class="form-control" value={domain.domain} disabled>
-                </td>
-
+                <th>
+                    <input
+                        type="checkbox"
+                        name={`domainsToProcessAll`}
+                        id={`domainsToProcessAll`}
+                        bind:checked={doCheckAll}
+                        on:change={checkAll}
+                        disabled={(verifiedCount === currentDomainRequest.domains.length)}
+                    >
+                </th>
+                <th>Domain</th>
             </tr>
+            </thead>
 
-            {#if domain.isOnSEDOButNotVerified}
-                <!-- Is it is on SEDO but not verified -->
-                <tr transition:slide>
+            <tbody>
+            {#each Object.entries(currentDomainRequest.domains) as [index, domain], i}
+                <tr>
+                    <td>
+                        {#if spinners.domainsSpinner[domain.domain]}
+                            <Spinner />
+                        {:else}
+                            <input
+                                type="checkbox" name={`domainsToProcess[${i}]`}
+                                id={`domainsToProcess[${i}]`}
+                                disabled={domain.verified_on_sedo_at || null}
+                                bind:group={domainsToProcess}
+                                value={domain.domain}
+                                checked={domainsToProcess.includes(domain.domain)}
+                                on:change={() => console.log('Checkbox domain: ', {index, domain: domain.domain, domainsToProcess, checkedDomains})}>
+                        {/if}
+                    </td>
 
-                    <td colspan="3">
-
-                        <div class="row mb-3">
-                            <label for="sedo_account">SEDO Account</label>
-                            <input type="text" name="sedo_account" id="sedo_account"  class="form-control" value={domain.sedo_account.name} disabled>
-                        </div>
-                        <div class="row mb-3">
-                            <AlertBox type="warning">
-                                <strong>&#x26A0; Note:</strong> You can verify <b>{domain.domain}</b> on SEDO by adding a <b>DNS TXT Record</b> with this values:
-                                <br>
-                                Host: <b>blank</b> or <b>@</b>
-                                <br>
-                                Value: <b>{domain.sedo_account.domain_ownership_id}</b>
-                                <br>
-                                <br>
-                                This is described <a href="https://sedo.com/member/ownership_verification.php" target="_blank" rel="noreferrer">here</a>
-                            </AlertBox>
-                        </div>
-
+                    <td>
+                        <input type="text" name={`domain[${i}]`} id={`domain[${i}]`} class="form-control" value={domain.domain} disabled>
                     </td>
 
                 </tr>
-            {/if}
-            <br>
-        {/each}
-        </tbody>
-    </table>
+                <br>
+            {/each}
+            </tbody>
+        </table>
 
-</div>
-
-<div class="row mb-3">
-    <div class="col text-center" transition:slide>
-        <button class="btn btn-primary btn-red" on:click={() => verifyDomainOnSEDO(currentDomainRequest, spinners, form, domainRequests)}
-                disabled={(verifiedCount === currentDomainRequest.domains.length) || sedoAccountCount === 0}>
-            {#if spinners.verifyDomainOnSEDO}
-                <i class="fa-solid fa-certificate"></i>
-                <Spinner />
-            {:else}
-                <i class="fa-solid fa-certificate"></i>
-                Bulk Verify Domain On SEDO
-            {/if}
-        </button>
     </div>
-</div>
+
+    <div class="row mb-3">
+        <div class="col text-center" transition:slide>
+            <button class="btn btn-primary btn-red" on:click={() => pageVerifyDomainsOnSEDO()}
+                    disabled={(verifiedCount === currentDomainRequest.domains.length)}>
+                {#if spinners.verifyDomainOnSEDO}
+                    <i class="fa-solid fa-certificate"></i>
+                    <Spinner />
+                {:else}
+                    <i class="fa-solid fa-certificate"></i>
+                    Bulk Verify Domain On SEDO
+                {/if}
+            </button>
+        </div>
+    </div>
+{:else}
+    You Need At Least 1 Domain Added To SEDO to Enable SEDO Verify
+{/if}

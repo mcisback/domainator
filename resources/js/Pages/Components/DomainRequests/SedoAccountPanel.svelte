@@ -16,6 +16,7 @@
     import AddToSEDOPanel from "./AddToSEDOPanel.svelte";
     import TabItem from "../Tabs/TabItem.svelte";
     import VerifyOnSEDOPanel from "./VerifyOnSEDOPanel.svelte";
+    import {TABS_VALUES} from "../../Enums/tabsValue";
 
     export let domainRequests = []
     export let form = {}
@@ -26,7 +27,22 @@
     export let sedoLanguages = []
     export let spinners = []
 
+    let tabs = [
+        {
+            label: 'Register',
+            value: TABS_VALUES.REGISTER_TAB,
+        },
+        {
+            label: 'Add to SEDO',
+            value: TABS_VALUES.ADD_TO_SEDO_TAB,
+        },
+        {
+            label: 'Verify On SEDO',
+            value: TABS_VALUES.VERIFY_ON_SEDO_TAB,
+        },
+    ]
 
+    export let startingTabValue = TABS_VALUES.REGISTER_TAB // Starting tab
 
 </script>
 
@@ -35,46 +51,8 @@
     <div class="row mb-3 p-4" transition:slide>
 
         <div class="row mb-3 fw-bold">
-            <Tabs
-                items={[
-                    {
-                        label: 'Register',
-                        target: 'register',
-                        value: 1,
-                        props: {
-                            'bind:domainRequests': domainRequests,
-                            'bind:currentDomainRequest': currentDomainRequest,
-                            'bind:spinners': spinners,
-                            'bind:form': form,
-                        }
-                    },
-                    {
-                        label: 'Add to SEDO',
-                        target: 'addToSEDO',
-                        value: 2,
-                        props: {
-                            'bind:domainRequests': domainRequests,
-                            'bind:currentDomainRequest': currentDomainRequest,
-                            'bind:spinners': spinners,
-                            'bind:form': form,
-                        }
-                    },
-                    {
-                        label: 'Verify On SEDO',
-                        target: 'verifyOnSEDO',
-                        value: 3,
-                        props: {
-                            'bind:domainRequests': domainRequests,
-                            'bind:currentDomainRequest': currentDomainRequest,
-                            'bind:spinners': spinners,
-                            'bind:form': form,
-                        }
-                    },
-                ]}
-
-                let:activeTabValue
-            >
-                {#if activeTabValue === 1}
+            <Tabs items={tabs} let:activeTabValue bind:activeTabValue={startingTabValue}>
+                {#if activeTabValue === TABS_VALUES.REGISTER_TAB}
 
                     <TabItem id="register">
                         <RegisterDomainsPanel
@@ -85,7 +63,7 @@
                         />
                     </TabItem>
 
-                {:else if activeTabValue === 2}
+                {:else if activeTabValue === TABS_VALUES.ADD_TO_SEDO_TAB}
 
                     <TabItem id="addToSEDO">
                         <AddToSEDOPanel
@@ -100,7 +78,7 @@
                         />
                     </TabItem>
 
-                {:else if activeTabValue === 3}
+                {:else if activeTabValue === TABS_VALUES.VERIFY_ON_SEDO_TAB}
 
                     <TabItem id="verifyOnSEDO">
                         <VerifyOnSEDOPanel

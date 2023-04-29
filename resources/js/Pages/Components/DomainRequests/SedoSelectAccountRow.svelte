@@ -2,20 +2,18 @@
 import AlertBox from "../Alerts/AlertBox.svelte";
 import Switch from "../Checkboxes/Switch.svelte";
 
-export let domain = null
+// export let domain = null
 // export let currentDomainRequest = null
-export let currentSedoAccountId = null
-export let sedoAccounts = []
-export let sedoCategories = []
-export let sedoLanguage = 'en'
-export let sedoLanguages = {}
-export let sedoCategoryIds = [];
+// export let sedoCategories = []
+// export let sedoLanguage = 'en'
+// export let sedoLanguages = {}
+// export let sedoCategoryIds = [];
 export let isForSale = false
 export let fixedprice = false
 export let minprice = false
 export let price = 0
 
-console.log('SedoSelectAccount sedoCategoryIds: ', sedoCategoryIds)
+// console.log('SedoSelectAccount sedoCategoryIds: ', sedoCategoryIds)
 </script>
 
 <!--<div class="row mb-3">-->

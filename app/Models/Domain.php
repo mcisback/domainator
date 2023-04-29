@@ -28,6 +28,7 @@ class Domain extends Model
         'submitted_at',
         'registered_at',
         'approved_at',
+        'verified_on_sedo_at',
     ];
 
     public function submittedByUser() {

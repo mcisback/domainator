@@ -9,6 +9,7 @@ import Switch from "../Checkboxes/Switch.svelte";
 import {updateCurrentDomain, verifyDomainOnSEDO} from "../../PageFunctions/DomainRequests/verifyDomainOnSEDO";
 import {promiseChainSequence} from "../../Helpers/promiseChainSequence";
 import {addDomainToSEDO} from "../../PageFunctions/DomainRequests/addDomainToSEDO";
+import SedoSelectAccountRow from "./SedoSelectAccountRow.svelte";
 
 export let domainRequests = []
 export let currentDomainRequest = null
@@ -23,10 +24,10 @@ export let sedoLanguages = []
 
 export let form = {}
 
-let registeredCount = 0
-let domainsToRegisterCount = 0
+let processableCount = 0
+let domainsToProcessCount = 0
 
-let registeredDomains = []
+let processableDomains = []
 
 let doCheckAll = true
 let checkedDomains = {}
@@ -56,15 +57,15 @@ Object.entries(currentDomainRequest.domains).forEach(([index, domain]) => {
     domainsToProcess.push(domainName)
 
     if(registered) {
-        registeredCount++;
+        processableCount++;
 
-        registeredDomains.push(domain)
+        processableDomains.push(domain)
     } else {
-        domainsToRegisterCount++;
+        domainsToProcessCount++;
     }
 })
 
-console.log('Domains count: ', {registeredCount, registeredDomains, domainsToRegisterCount})
+console.log('Domains count: ', {processableCount, processableDomains, domainsToProcessCount})
 
 console.log('Checked domains: ', {checkedDomains, domainsToProcess})
 
@@ -99,19 +100,18 @@ const checkAll = () => {
 console.log('currentDomainRequest: ', currentDomainRequest)
 console.log('domainsToProcess: ', domainsToProcess)
 
-function pageAddDomainsToSEDO(
-    sedoCategoryIds,
-    sedoLanguage,
-) {
+function pageAddDomainsToSEDO() {
     spinners.addDomainToSEDO = true
 
-    const domainsToSEDO = currentDomainRequest.domains.filter(domain => domain.registered === true)
+    const domainsToSEDO = currentDomainRequest.domains.filter(domain => domainsToProcess.includes(domain.domain))
 
     console.log('pageAddDomainsToSEDO() Processing: ', domainsToSEDO)
 
     if(domainsToSEDO.length <= 0) {
         form.success = false
         form.message = 'No Registered Domain To Add to SEDO'
+
+        spinners.addDomainToSEDO = false
 
         return
     }
@@ -125,12 +125,13 @@ function pageAddDomainsToSEDO(
 
         return addDomainToSEDO(
             domain,
+            currentSedoAccountId,
             sedoCategoryIds,
             sedoLanguage,
-            isForSale,
-            price,
-            minprice,
-            fixedprice,
+            checkedDomains[domain.domain].isForSale,
+            checkedDomains[domain.domain].price,
+            checkedDomains[domain.domain].minprice,
+            checkedDomains[domain.domain].fixedprice,
         )
             .then(data => {
                 console.log('addDomainToSEDO() Response data: ', data)
@@ -142,7 +143,11 @@ function pageAddDomainsToSEDO(
                 form.message = data.message
                 domainRequests = data.domainRequests
 
-                domain = updateCurrentDomain(domain, data.domainRequest)
+                domain = updateCurrentDomain(domain, data.domainRequests)
+
+                currentDomainRequest = {
+                    ...currentDomainRequest
+                }
             })
             .catch(err => {
                 spinners.addDomainToSEDO = false
@@ -158,118 +163,109 @@ function pageAddDomainsToSEDO(
 
 </script>
 
+{#key currentDomainRequest}
+    {#if processableCount > 0}
+        <div class="row mb-3">
+            <AlertBox type="warning">
+                <strong>&#x26A0; Note:</strong> Adding domain To SEDO does not have an immediate effect as domain first have to pass a couple of checks before they get added to an account. You will be notified via eMail in case any checks fail.
+                <br>
+                This is how SEDO API works.
+            </AlertBox>
+        </div>
+    {/if}
 
-{#if registeredCount > 0}
-    <div class="row mb-3">
-        <AlertBox type="warning">
-            <strong>&#x26A0; Note:</strong> Adding domainRequest To SEDO does not have an immediate effect as domainRequest first have to pass a couple of checks before they get added to an account. You will be notified via eMail in case any checks fail.
-            <br>
-            This is how SEDO API works.
-        </AlertBox>
-    </div>
-{/if}
-
-<div class="row mb-3 fw-bold">
-    <table>
-        <thead>
-        <tr>
-            <th>
-                <input type="checkbox" name={`domainsToProcessAll`} id={`domainsToProcessAll`} bind:checked={doCheckAll} on:change={checkAll} >
-            </th>
-            <th>Domain</th>
-        </tr>
-        </thead>
-
-        <tbody>
-        {#each Object.entries(currentDomainRequest.domains) as [index, domain], i}
+    <div class="row mb-3 fw-bold">
+        <table>
+            <thead>
             <tr>
-                <td>
-                    {#if spinners.domainsSpinner[domain.domain]}
-                        <Spinner />
-                    {:else}
-                        <input type="checkbox" name={`domainsToProcess[${i}]`} id={`domainsToProcess[${i}]`} disabled={domain.sedo_account || null} bind:group={domainsToProcess} value={domain.domain} checked={domainsToProcess.includes(domain.domain)} on:change={() => console.log('Checkbox domain: ', {index, domain: domain.domain, domainsToProcess, checkedDomains})}>
-                    {/if}
-                </td>
-
-                <td>
-                    <input type="text" name={`domain[${i}]`} id={`domain[${i}]`} class="form-control" value={domain.domain} disabled>
-                </td>
-
-                <td>
-                    <button
-                        class="btn btn-primary btn-red"
-                        on:click={() => pageDeleteSingleDomain(domain)}
-                        disabled={domain.registered || null}
+                <th>
+                    <input
+                        type="checkbox" name={`domainsToProcessAll`}
+                        id={`domainsToProcessAll`}
+                        bind:checked={doCheckAll}
+                        on:change={checkAll}
+                        disabled={processableCount === currentDomainRequest.domains.length}}
                     >
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
-                </td>
-                {#if domain.isRegisteredButNotOnSEDO}
-                    <!-- Is Registered but not on SEDO -->
-                    <td>
-                        <TogglableArrow
-                            bind:toggled={domain.toggled}
-                        />
-                    </td>
-                {/if}
+                </th>
+                <th>Domain</th>
             </tr>
-            {#if !domain.registered}
+            </thead>
+
+            <tbody>
+            {#each Object.entries(currentDomainRequest.domains) as [index, domain], i}
                 <tr>
-                    <td></td>
-                    <td colspan="2" style="padding-left: 1rem;">
-                        <Switch
-                            id={`whois_protection_domain_${domain.id}`}
-                            bind:checked={checkedDomains[domain.domain].enableWhoisProtection}
-                            style="display: inline-block;"
-                        >
-                            Whois Protection
-                        </Switch>
+                    <td>
+                        {#if spinners.domainsSpinner[domain.domain]}
+                            <Spinner />
+                        {:else}
+                            <input type="checkbox" name={`domainsToProcess[${i}]`} id={`domainsToProcess[${i}]`} disabled={!domain.sedo_account} bind:group={domainsToProcess} value={domain.domain} checked={domainsToProcess.includes(domain.domain)} on:change={() => console.log('Checkbox domain: ', {index, domain: domain.domain, domainsToProcess, checkedDomains})}>
+                        {/if}
                     </td>
+
+                    <td>
+                        <input type="text" name={`domain[${i}]`} id={`domain[${i}]`} class="form-control" value={domain.domain} disabled>
+                    </td>
+
+                    <!--{#if domain.isRegisteredButNotOnSEDO}-->
+                    <!--    &lt;!&ndash; Is Registered but not on SEDO &ndash;&gt;-->
+                    <!--    <td>-->
+                    <!--        <TogglableArrow-->
+                    <!--            bind:toggled={domain.toggled}-->
+                    <!--        />-->
+                    <!--    </td>-->
+                    <!--{/if}-->
                 </tr>
-            {/if}
+                {#if domain.isRegisteredButNotOnSEDO}
+                    <tr>
+                        <td colspan="2">
+                            <SedoSelectAccountRow
+                                bind:sedoCategories={sedoCategories}
+                                bind:sedoLanguage={sedoLanguage}
+                                bind:sedoLanguages={sedoLanguages}
+                                bind:sedoCategoryIds={sedoCategoryIds}
+                                bind:isForSale={checkedDomains[domain.domain].isForSale}
+                                bind:fixedprice={checkedDomains[domain.domain].fixedprice}
+                                bind:minprice={checkedDomains[domain.domain].minprice}
+                                bind:price={checkedDomains[domain.domain].price}
+                            />
+                        </td>
+                    </tr>
+                {/if}
 
 
-            <br>
-        {/each}
-        </tbody>
-    </table>
+                <br>
+            {/each}
+            </tbody>
+        </table>
 
 
-    <div class="row mb-3">
+        <div class="row mb-3">
 
-        <SedoSelectAccount
-            bind:domain={currentDomainRequest.domains[0]}
-            bind:currentDomainRequest={currentDomainRequest}
-            bind:currentSedoAccountId={currentSedoAccountId}
-            bind:sedoAccounts={sedoAccounts}
-            bind:sedoCategories={sedoCategories}
-            bind:sedoLanguage={sedoLanguage}
-            bind:sedoLanguages={sedoLanguages}
-            bind:sedoCategoryIds={sedoCategoryIds}
-            bind:isForSale={checkedDomains[currentDomainRequest.domains[0].domain].isForSale}
-            bind:fixedprice={checkedDomains[currentDomainRequest.domains[0].domain].fixedprice}
-            bind:minprice={checkedDomains[currentDomainRequest.domains[0].domain].minprice}
-            bind:price={checkedDomains[currentDomainRequest.domains[0].domain].price}
-        />
+            <SedoSelectAccount
+                bind:currentDomainRequest={currentDomainRequest}
+                bind:currentSedoAccountId={currentSedoAccountId}
+                bind:sedoAccounts={sedoAccounts}
+                bind:sedoCategories={sedoCategories}
+                bind:sedoLanguage={sedoLanguage}
+                bind:sedoLanguages={sedoLanguages}
+                bind:sedoCategoryIds={sedoCategoryIds}
+            />
+
+        </div>
 
     </div>
 
-</div>
-
-<div class="row text-center">
-    <button class="btn btn-primary btn-red"
-            on:click={() => pageAddDomainsToSEDO(
-                                sedoCategoryIds,
-                                sedoLanguage,
-                            )}
-            disabled={!(currentDomainRequest.sedo_account === null && registeredCount >= 1)}>
-        {#if spinners.addDomainToSEDO}
-            <i class="fa-solid fa-plus"></i>
-            <Spinner />
-        {:else}
-            <i class="fa-solid fa-plus"></i>
-            Bulk Add to SEDO
-        {/if}
-    </button>
-</div>
-
+    <div class="row text-center">
+        <button class="btn btn-primary btn-red"
+                on:click={() => pageAddDomainsToSEDO()}
+                disabled={!(currentDomainRequest.sedo_account === null && processableCount >= 1)}>
+            {#if spinners.addDomainToSEDO}
+                <i class="fa-solid fa-plus"></i>
+                <Spinner />
+            {:else}
+                <i class="fa-solid fa-plus"></i>
+                Bulk Add to SEDO
+            {/if}
+        </button>
+    </div>
+{/key}

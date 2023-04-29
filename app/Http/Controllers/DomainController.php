@@ -122,6 +122,7 @@ class DomainController extends Controller
      */
     public function register(Request $request, Domain $domain)
     {
+        $domainRequest = $domain->domainRegistrationRequest;
         $enableWhoisProtection = $request->get('enableWhoisProtection');
         $namecheapApi = new NamecheapApi();
 
@@ -148,14 +149,21 @@ class DomainController extends Controller
 
                 $nowTimestamp = Carbon::now();
 
+                $domainRequest->approved_by_user_id = Auth::id();
+                $domainRequest->approved_at = $nowTimestamp;
+
                 $domain->approved_by_user_id = Auth::id();
                 $domain->approved_at = $nowTimestamp;
 
                 $domain->registered = true;
                 $domain->registered_at = $nowTimestamp;
 
+                $domainRequest->registered = true;
+                $domainRequest->registered_at = $nowTimestamp;
+
                 $domain->price = $response["ChargedAmount"];
 
+                $domainRequest->save();
                 $domain->save();
             } else {
                 $response = "Error registering {$response["Domain"]}: " . json_encode($response);
@@ -189,6 +197,7 @@ class DomainController extends Controller
      */
     public function addToSedo(Request $request, Domain $domain, SedoAccount  $sedoAccount)
     {
+        $domainRequest = $domain->domainRegistrationRequest;
         $sedoCategoryIds = $request->get('sedoCategoryIds');
         $isForSale = $request->get('isForSale') === true ? 1 : 0;
         $price = $request->get('price') ?? 0;
@@ -232,6 +241,9 @@ class DomainController extends Controller
             ], 500);
         }
 
+        $domainRequest->sedo_account_id = $sedoAccount->id;
+        $domainRequest->save();
+
         $domain->sedo_account_id = $sedoAccount->id;
         $domain->save();
 
@@ -254,6 +266,8 @@ class DomainController extends Controller
      */
     public function sedoVerifyDomain(Request $request, Domain $domain, SedoAccount  $sedoAccount)
     {
+        $domainRequest = $domain->domainRegistrationRequest;
+
         try {
             $namecheapApi = new NamecheapApi();
 
@@ -273,13 +287,18 @@ class DomainController extends Controller
             ], 500);
         }
 
-        $domain->verified_on_sedo_at = Carbon::now();
+        $nowTimestamp = Carbon::now();
+
+        $domain->verified_on_sedo_at = $nowTimestamp;
+        $domainRequest->verified_on_sedo_at = $nowTimestamp;
+
+        $domainRequest->save();
         $domain->save();
 
         return response()->json([
             'success' => true,
-            'message' => 'Domains Verified on SEDO Successfully',
-            'domains' => Domain::all(),
+            'message' => "Domain \"$domain->domain\" Verified on SEDO Successfully",
+            'domainRequests' => DomainRegistrationRequest::all(),
             'namecheapResponse' => $response,
         ]);
     }

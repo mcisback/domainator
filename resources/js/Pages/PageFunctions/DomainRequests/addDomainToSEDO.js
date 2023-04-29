@@ -3,6 +3,7 @@ import {updateCurrentDomain} from "./verifyDomainOnSEDO";
 
 export function addDomainToSEDO (
     domain,
+    sedoAccountId,
     sedoCategoryIds,
     sedoLanguage,
     isForSale,
@@ -11,11 +12,11 @@ export function addDomainToSEDO (
     fixedprice,
 ) {
 
-    console.log('addDomainToSEDO() Sending domain: ', {domain, sedoCategoryIds, sedoLanguage})
+    console.log('addDomainToSEDO() Sending domain: ', {domain, sedoAccountId, sedoCategoryIds, sedoLanguage})
 
-    return axios.post(route('dashboard.domainRequest.addToSedo', {
+    return axios.post(route('dashboard.domains.addToSedo', {
         domain: domain.id,
-        sedoAccount: currentSedoAccountId
+        sedoAccount: sedoAccountId
     }), {
         sedoCategoryIds,
         sedoLanguage,

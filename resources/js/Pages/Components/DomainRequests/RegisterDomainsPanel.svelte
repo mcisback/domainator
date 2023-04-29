@@ -10,6 +10,7 @@ import {promiseChainSequence} from "../../Helpers/promiseChainSequence";
 import {registerDomain} from "../../PageFunctions/DomainRequests/registerDomain";
 import {deleteDomainsRequest} from "../../PageFunctions/DomainRequests/deleteDomainsRequest";
 import {deleteDomain} from "../../PageFunctions/DomainRequests/deleteDomain";
+import {TABS_VALUES} from "../../Enums/tabsValue";
 
 export let domainRequests = []
 export let currentDomainRequest = null
@@ -246,6 +247,11 @@ function pageDeleteSingleDomain(domain) {
         })
 }
 
+// export let activeTabValue = 1
+// if(registeredCount === currentDomainRequest.domains.length) {
+//     activeTabValue = TABS_VALUES.ADD_TO_SEDO_TAB
+// }
+
 </script>
 
 {#key currentDomainRequest}
@@ -304,34 +310,6 @@ function pageDeleteSingleDomain(domain) {
                                 Whois Protection
                             </Switch>
                         </td>
-                    </tr>
-                {/if}
-
-                {#if domain.isOnSEDOButNotVerified}
-                    <!-- Is it is on SEDO but not verified -->
-                    <tr transition:slide>
-
-                        <td colspan="3">
-
-                            <div class="row mb-3">
-                                <label for="sedo_account">SEDO Account</label>
-                                <input type="text" name="sedo_account" id="sedo_account"  class="form-control" value={domain.sedo_account.name} disabled>
-                            </div>
-                            <div class="row mb-3">
-                                <AlertBox type="warning">
-                                    <strong>&#x26A0; Note:</strong> You can verify <b>{domain.domain}</b> on SEDO by adding a <b>DNS TXT Record</b> with this values:
-                                    <br>
-                                    Host: <b>blank</b> or <b>@</b>
-                                    <br>
-                                    Value: <b>{domain.sedo_account.domain_ownership_id}</b>
-                                    <br>
-                                    <br>
-                                    This is described <a href="https://sedo.com/member/ownership_verification.php" target="_blank" rel="noreferrer">here</a>
-                                </AlertBox>
-                            </div>
-
-                        </td>
-
                     </tr>
                 {/if}
                 <br>

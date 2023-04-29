@@ -1,7 +1,4 @@
 <script>
-import AlertBox from "../Alerts/AlertBox.svelte";
-import Switch from "../Checkboxes/Switch.svelte";
-
 export let domain = null
 // export let currentDomainRequest = null
 export let currentSedoAccountId = null
@@ -22,7 +19,7 @@ console.log('SedoSelectAccount sedoCategoryIds: ', sedoCategoryIds)
     <label for={`sedo_account`}>
         Select SEDO Account
     </label>
-    <select name={`sedo_account`} id={`sedo_account`} bind:value={currentSedoAccountId} class="form-select" disabled={domain && domain.sedo_account}>
+    <select name={`sedo_account`} id={`sedo_account`} bind:value={currentSedoAccountId} class="form-select">
         {#each sedoAccounts as {id, name, partner_id}}
             <option value={id}>
                 {name}:{partner_id}
@@ -57,40 +54,3 @@ console.log('SedoSelectAccount sedoCategoryIds: ', sedoCategoryIds)
     </select>
 </div>
 
-<div class="row mb-3 align-items-center">
-    <div class="col">
-        <Switch id="is_for_sale" bind:checked={isForSale}>
-            Is For Sale ?
-        </Switch>
-    </div>
-
-    <div class="col">
-        <Switch id="fixed_price" bind:checked={fixedprice}>
-            Fixed Price ?
-        </Switch>
-    </div>
-
-    <div class="col">
-
-        <div class="row">
-            <label for="price" class="col col-form-label">Price</label>
-
-            <div class="col">
-                <input type="number" name="price" id="price" bind:value={price} class="form-control">
-            </div>
-        </div>
-
-    </div>
-
-    <div class="col">
-
-        <div class="row">
-            <label for="minprice" class="col col-form-label">Min. Price</label>
-
-            <div class="col">
-                <input type="number" name="minprice" id="minprice" bind:value={minprice} class="form-control">
-            </div>
-        </div>
-
-    </div>
-</div>
