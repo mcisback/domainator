@@ -25,20 +25,20 @@ class DomainController extends Controller
      *
      * @return \Illuminate\Http\Response|\Inertia\Response
      */
-    public function index()
-    {
-
-    }
+//    public function index()
+//    {
+//
+//    }
 
     /**
      * Show the form for creating a new resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
-    {
-        //
-    }
+//    public function create()
+//    {
+//        //
+//    }
 
     /**
      * Store a newly created resource in storage.
@@ -84,10 +84,10 @@ class DomainController extends Controller
      * @param  \App\Models\Domain  $domain
      * @return \Illuminate\Http\Response
      */
-    public function show(Domain $domain)
-    {
-        //
-    }
+//    public function show(Domain $domain)
+//    {
+//        //
+//    }
 
     /**
      * Show the form for editing the specified resource.
@@ -95,10 +95,10 @@ class DomainController extends Controller
      * @param  \App\Models\Domain  $domain
      * @return \Illuminate\Http\Response
      */
-    public function edit(Domain $domain)
-    {
-        //
-    }
+//    public function edit(Domain $domain)
+//    {
+//        //
+//    }
 
     /**
      * Update the specified resource in storage.
@@ -107,10 +107,10 @@ class DomainController extends Controller
      * @param  \App\Models\Domain  $domain
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Domain $domain)
-    {
-        //
-    }
+//    public function update(Request $request, Domain $domain)
+//    {
+//        //
+//    }
 
     /**
      * Register the domain the specified resource in storage.

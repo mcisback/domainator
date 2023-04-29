@@ -8,7 +8,7 @@ import {deleteDomainsRequest} from "../../PageFunctions/DomainRequests/deleteDom
 import {deleteDomain} from "../../PageFunctions/DomainRequests/deleteDomain";
 
 export let domainRequests = []
-export let currentDomainRequest = null
+export let currentDomainRequest = {}
 export let spinners = {}
 
 export let form = {}

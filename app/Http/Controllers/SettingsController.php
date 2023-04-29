@@ -25,10 +25,10 @@ class SettingsController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
-    {
-        //
-    }
+//    public function create()
+//    {
+//        //
+//    }
 
     /**
      * Store a newly created resource in storage.
@@ -36,10 +36,10 @@ class SettingsController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
-    {
-        //
-    }
+//    public function store(Request $request)
+//    {
+//        //
+//    }
 
     /**
      * Display the specified resource.
@@ -47,10 +47,10 @@ class SettingsController extends Controller
      * @param  \App\Models\Settings  $settings
      * @return \Illuminate\Http\Response
      */
-    public function show(Settings $settings)
-    {
-        //
-    }
+//    public function show(Settings $settings)
+//    {
+//        //
+//    }
 
     /**
      * Show the form for editing the specified resource.
@@ -58,10 +58,10 @@ class SettingsController extends Controller
      * @param  \App\Models\Settings  $settings
      * @return \Illuminate\Http\Response
      */
-    public function edit(Settings $settings)
-    {
-        //
-    }
+//    public function edit(Settings $settings)
+//    {
+//        //
+//    }
 
     /**
      * Update the specified resource in storage.
@@ -98,8 +98,8 @@ class SettingsController extends Controller
      * @param  \App\Models\Settings  $settings
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Settings $settings)
-    {
-        //
-    }
+//    public function destroy(Settings $settings)
+//    {
+//        //
+//    }
 }
