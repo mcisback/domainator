@@ -113,6 +113,9 @@ function pageAddDomainsToSEDO() {
         return
     }
 
+    form.success = null
+    form.message = ''
+
     promiseChainSequence(domainsToSEDO, (domain, res) => {
 
         console.log('pageAddDomainsToSEDO(), promiseChainSequence: ', domain, res)
@@ -139,8 +142,9 @@ function pageAddDomainsToSEDO() {
                 form.success = data.success
                 form.message += data.message + `\n<br>`
                 domainRequests = data.domainRequests
+                // currentDomainRequest = data.currentDomainRequest
 
-                domain = updateCurrentDomain(domain, data.domainRequests)
+                // domain = updateCurrentDomain(domain, data.domainRequests)
             })
             .catch(err => {
                 spinners.addDomainToSEDO = false
@@ -151,11 +155,12 @@ function pageAddDomainsToSEDO() {
 
                 console.log('Err: ', err.response.data)
             })
-    }).then(() => {
-        currentDomainRequest = {
-            ...currentDomainRequest
-        }
     })
+        // .then(() => {
+        //     currentDomainRequest = {
+        //         ...currentDomainRequest
+        //     }
+        // })
 }
 
 </script>

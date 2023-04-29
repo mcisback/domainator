@@ -56,7 +56,7 @@ class MeController extends Controller
 //     */
 //    public function show($id)
 //    {
-//        if(Auth::id() == $id) {
+//        if(Auth::user()->id == $id) {
 //            return Inertia::render('Dashboard/Profile', [
 //                'currentUser' => [
 //                    ...Auth::user()->toArray(),
@@ -90,7 +90,7 @@ class MeController extends Controller
      */
     public function update(Request $request, $id)
     {
-        if(Auth::id() == $id) {
+        if(Auth::user()->id == $id) {
             $user = User::find($id);
             $user->update($request->all());
 

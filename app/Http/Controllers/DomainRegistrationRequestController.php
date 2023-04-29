@@ -48,7 +48,7 @@ class DomainRegistrationRequestController extends Controller
     {
         try {
             $domainRegistrationRequest = \App\Models\DomainRegistrationRequest::create([
-                'submitted_by_user_id' => Auth::id(),
+                'submitted_by_user_id' => Auth::user()->id,
                 'submitted_at' => Carbon::now(),
             ]);
         } catch(\Exception $e) {

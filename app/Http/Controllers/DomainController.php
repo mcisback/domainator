@@ -57,7 +57,7 @@ class DomainController extends Controller
                 'domain' => $domainName,
                 'price' => $price,
                 'domain_registration_request_id' => $domainRegistrationRequestId,
-                'submitted_by_user_id' => Auth::id(),
+                'submitted_by_user_id' => Auth::user()->id,
                 'submitted_at' => Carbon::now(),
             ]);
         } catch(\Exception $e) {
@@ -148,17 +148,16 @@ class DomainController extends Controller
 
                 $nowTimestamp = Carbon::now();
 
-                $domainRequest->approved_by_user_id = Auth::id();
+                $domainRequest->approved_by_user_id = Auth::user()->id;
                 $domainRequest->approved_at = $nowTimestamp;
 
-                $domain->approved_by_user_id = Auth::id();
+                $domain->approved_by_user_id = Auth::user()->id;
                 $domain->approved_at = $nowTimestamp;
+
+                $domainRequest->registered_at = $nowTimestamp;
 
                 $domain->registered = true;
                 $domain->registered_at = $nowTimestamp;
-
-                $domainRequest->registered = true;
-                $domainRequest->registered_at = $nowTimestamp;
 
                 $domain->price = $response["ChargedAmount"];
 
@@ -252,6 +251,7 @@ class DomainController extends Controller
             'domains' => Domain::all(),
             'sedoDomains' => $response,
             'domainRequests' => DomainRegistrationRequest::all(),
+            'currentDomainRequest' => $domainRequest,
         ]);
     }
 
@@ -299,6 +299,7 @@ class DomainController extends Controller
             'message' => "Domain \"$domain->domain\" Verified on SEDO Successfully",
             'domainRequests' => DomainRegistrationRequest::all(),
             'namecheapResponse' => $namecheapResponse,
+            'currentDomainRequest' => $domainRequest,
         ]);
     }
 

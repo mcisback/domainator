@@ -115,6 +115,10 @@ function pageVerifyDomainsOnSEDO() {
         return
     }
 
+    form.success = null
+    form.message = ''
+    let latestData = null
+
     promiseChainSequence(domainsToSEDO, (domain, res) => {
 
         console.log('pageVerifyDomainsOnSEDO(), promiseChainSequence: ', domain, res)
@@ -134,23 +138,30 @@ function pageVerifyDomainsOnSEDO() {
                 form.success = data.success
                 form.message += data.message + `\n<br>`
                 domainRequests = data.domainRequests
+                // currentDomainRequest = data.currentDomainRequest
 
-                domain = updateCurrentDomain(domain, data.domainRequest)
+                latestData = data
+
+                // domain = updateCurrentDomain(domain, currentDomainRequest.domains)
             })
             .catch(err => {
+
+                console.log('pageVerifyDomainsOnSEDO() error: ', err)
+
                 spinners.verifyDomainsOnSEDO = false
                 spinners.domainsSpinner[domain.domain] = false
 
                 form.success = false
                 form.message = err.response.data.message
 
-                console.log('Err: ', err.response.data)
+                // console.log('Err: ', err.response.data)
             })
-    }).then(() => {
-        currentDomainRequest = {
-            ...currentDomainRequest
-        }
     })
+        .then(() => {
+            currentDomainRequest = {
+                ...(latestData !== null ? latestData.currentDomainRequest : currentDomainRequest)
+            }
+        })
 }
 
 </script>
