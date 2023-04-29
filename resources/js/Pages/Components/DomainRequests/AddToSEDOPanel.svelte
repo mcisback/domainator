@@ -1,12 +1,9 @@
 <script>
 
-import { slide } from 'svelte/transition';
-import TogglableArrow from "../Widgets/ToggableArrow.svelte";
 import SedoSelectAccount from "./SedoSelectAccount.svelte";
 import AlertBox from "../Alerts/AlertBox.svelte";
 import Spinner from "../Spinners/Spinner.svelte";
-import Switch from "../Checkboxes/Switch.svelte";
-import {updateCurrentDomain, verifyDomainOnSEDO} from "../../PageFunctions/DomainRequests/verifyDomainOnSEDO";
+import {updateCurrentDomain} from "../../PageFunctions/DomainRequests/verifyDomainOnSEDO";
 import {promiseChainSequence} from "../../Helpers/promiseChainSequence";
 import {addDomainToSEDO} from "../../PageFunctions/DomainRequests/addDomainToSEDO";
 import SedoSelectAccountRow from "./SedoSelectAccountRow.svelte";

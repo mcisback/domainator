@@ -1,6 +1,4 @@
 import route from "ziggy-js";
-import {updateCurrentDomain} from "./verifyDomainOnSEDO";
-
 export function addDomainToSEDO (
     domain,
     sedoAccountId,

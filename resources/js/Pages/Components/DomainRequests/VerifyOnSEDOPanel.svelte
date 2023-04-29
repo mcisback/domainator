@@ -1,14 +1,10 @@
 <script>
 
 import { slide } from 'svelte/transition';
-import TogglableArrow from "../Widgets/ToggableArrow.svelte";
-import SedoSelectAccount from "./SedoSelectAccount.svelte";
 import AlertBox from "../Alerts/AlertBox.svelte";
 import Spinner from "../Spinners/Spinner.svelte";
-import Switch from "../Checkboxes/Switch.svelte";
 import {updateCurrentDomain, verifyDomainOnSEDO} from "../../PageFunctions/DomainRequests/verifyDomainOnSEDO";
 import {promiseChainSequence} from "../../Helpers/promiseChainSequence";
-import {addDomainToSEDO} from "../../PageFunctions/DomainRequests/addDomainToSEDO";
 
 export let domainRequests = []
 export let currentDomainRequest = null
@@ -216,7 +212,7 @@ function pageVerifyDomainsOnSEDO() {
                                 disabled={domain.verified_on_sedo_at || null}
                                 bind:group={domainsToProcess}
                                 value={domain.domain}
-                                checked={domainsToProcess.includes(domain.domain)}
+                                checked={domainsToProcess.includes(domain.domain) || domain.verified_on_sedo_at}
                                 on:change={() => console.log('Checkbox domain: ', {index, domain: domain.domain, domainsToProcess, checkedDomains})}>
                         {/if}
                     </td>

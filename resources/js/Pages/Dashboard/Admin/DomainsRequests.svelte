@@ -1,6 +1,4 @@
 <script>
-    import route from 'ziggy-js';
-
     import moment from 'moment';
 
     import DashboardLayout from '../../Layouts/DashboardLayout.svelte'

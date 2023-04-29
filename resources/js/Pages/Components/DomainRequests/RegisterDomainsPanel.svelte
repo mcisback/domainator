@@ -1,16 +1,11 @@
 <script>
 
-import { slide } from 'svelte/transition';
-import TogglableArrow from "../Widgets/ToggableArrow.svelte";
-import SedoSelectAccount from "./SedoSelectAccount.svelte";
-import AlertBox from "../Alerts/AlertBox.svelte";
 import Spinner from "../Spinners/Spinner.svelte";
 import Switch from "../Checkboxes/Switch.svelte";
 import {promiseChainSequence} from "../../Helpers/promiseChainSequence";
 import {registerDomain} from "../../PageFunctions/DomainRequests/registerDomain";
 import {deleteDomainsRequest} from "../../PageFunctions/DomainRequests/deleteDomainsRequest";
 import {deleteDomain} from "../../PageFunctions/DomainRequests/deleteDomain";
-import {TABS_VALUES} from "../../Enums/tabsValue";
 
 export let domainRequests = []
 export let currentDomainRequest = null

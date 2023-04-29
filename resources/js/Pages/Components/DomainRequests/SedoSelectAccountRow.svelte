@@ -1,5 +1,4 @@
 <script>
-import AlertBox from "../Alerts/AlertBox.svelte";
 import Switch from "../Checkboxes/Switch.svelte";
 
 // export let domain = null
