@@ -13,13 +13,13 @@ class Settings extends Model
         'value' => 'array'
     ];
 
-    public static function get(string $key) {
+    public static function getValue(string $key) {
 
         return static::where('key', $key)->first()->value ?? [];
 
     }
 
-    public static function set(string $key, array $value) {
+    public static function setValue(string $key, array $value) {
 
         return static::upsert([
             [

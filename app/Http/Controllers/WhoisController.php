@@ -32,7 +32,7 @@ class WhoisController extends Controller
     public function index()
     {
         return Inertia('Dashboard/Whois', [
-            'allowedTdls' => Settings::get('allowedTdls')
+            'allowedTdls' => Settings::getValue('allowedTdls')
         ]);
     }
 

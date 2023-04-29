@@ -20,7 +20,7 @@ class NamecheapApi
             'namecheap',
             1800, // Time To Live
             function() {
-                return Settings::get('namecheap');
+                return Settings::getValue('namecheap');
         });
 
         $this->apiUser = $credentials['ApiUser'];

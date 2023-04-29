@@ -16,7 +16,7 @@ class SettingsController extends Controller
     public function index()
     {
         return Inertia::render('Dashboard/Admin/Settings', [
-            'allowedTdls' => join( "\n", Settings::get('allowedTdls') ),
+            'allowedTdls' => join( "\n", Settings::getValue('allowedTdls') ),
         ]);
     }
 
@@ -75,7 +75,7 @@ class SettingsController extends Controller
         try {
             $allowedTdls = explode("\n", $request->get('allowedTdls'));
 
-            Settings::set('allowedTdls', $allowedTdls);
+            Settings::setValue('allowedTdls', $allowedTdls);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -88,7 +88,7 @@ class SettingsController extends Controller
             'success' => true,
             'message' => 'Settings Updated Successfully',
             'request' => $request->all(),
-            'settings' => Settings::get('allowedTdls'),
+            'settings' => Settings::getValue('allowedTdls'),
         ]);
     }
 

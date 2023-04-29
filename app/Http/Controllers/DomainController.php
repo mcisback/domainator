@@ -11,7 +11,6 @@ use App\Models\Settings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
-use Inertia\Inertia;
 
 class DomainController extends Controller
 {
@@ -127,7 +126,7 @@ class DomainController extends Controller
         $namecheapApi = new NamecheapApi();
 
         try {
-            $domainData = Settings::get('namecheap');
+            $domainData = Settings::getValue('namecheap');
 
             if($enableWhoisProtection === true) {
                 $domainData['AddFreeWhoisguard'] = 'yes';
