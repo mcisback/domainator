@@ -1,11 +1,14 @@
 <script>
     import route from 'ziggy-js';
 
+    import moment from 'moment';
+
     import DashboardLayout from '../../Layouts/DashboardLayout.svelte'
 
     import AlertBox from "../../Components/Alerts/AlertBox.svelte";
     import { slide } from 'svelte/transition';
     import SedoAccountPanel from "../../Components/DomainRequests/SedoAccountPanel.svelte";
+    import CondIcon from "../../Components/Widgets/CondIcon.svelte";
 
     export let domainRequests = []
     export let sedoAccounts = []
@@ -116,20 +119,13 @@
                                                     {#each domainRequest[col] as domain}
                                                         <tr>
                                                             <td>
-                                                                {#if !domain.registered}
-                                                                    <span style="color: red;">
-                                                                        <i class="fa-sharp fa-solid fa-xmark"></i>
-                                                                    </span>
-                                                                {:else}
-                                                                    <span style="color: green;">
-                                                                        <i class="fa-solid fa-check"></i>
-                                                                    </span>
-                                                                {/if}
-                                                                &nbsp;
+                                                                <CondIcon condition={!domain.registered} />&nbsp;
                                                                 {domain.domain}
                                                             </td>
                                                             <td>
-                                                                {domain.price ? (domain.price + ' ' + currencySymbol) : 'N.A.'}
+                                                                <span>
+                                                                    {domain.price ? (domain.price + ' ' + currencySymbol) : 'N.A.'}
+                                                                </span>
                                                             </td>
                                                         </tr>
                                                     {/each}
@@ -137,95 +133,45 @@
                                             </table>
                                         {:else if col === 'approved_by_user'}
                                             <td>
-                                                {#if domainRequest[col] === null}
-                                                    <span style="color: red;">
-                                                        <i class="fa-sharp fa-solid fa-xmark"></i>
-                                                    </span>
-                                                {:else}
-                                                    <span style="color: green;">
-                                                        <i class="fa-solid fa-check"></i>
-                                                        &nbsp;
-                                                        {domainRequest[col].username}
-                                                    </span>
-                                                {/if}
+                                                <CondIcon condition={domainRequest[col] === null}>
+                                                    {domainRequest[col].username}
+                                                </CondIcon>
                                             </td>
                                         {:else if col === 'submitted_by_user'}
                                             <td>
-                                                {#if domainRequest[col] === null}
-                                                    <span style="color: red;">
-                                                        <i class="fa-sharp fa-solid fa-xmark"></i>
-                                                    </span>
-                                                {:else}
-                                                    <span style="color: green;">
-                                                        <i class="fa-solid fa-check"></i>
-                                                        &nbsp;
-                                                        {domainRequest[col].username}
-                                                    </span>
-                                                {/if}
+                                                <CondIcon condition={domainRequest[col] === null}>
+                                                    {domainRequest[col].username}
+                                                </CondIcon>
                                             </td>
                                         {:else if col === 'sedo_account'}
                                             <td>
-                                                {#if domainRequest[col] === null}
-                                                    <span style="color: red;">
-                                                        <i class="fa-sharp fa-solid fa-xmark"></i>
-                                                    </span>
-                                                {:else}
-                                                    <span style="color: green;">
-                                                        <i class="fa-solid fa-check"></i>
-                                                        &nbsp;
-                                                        {domainRequest[col].name}
-                                                    </span>
-                                                {/if}
+                                                <CondIcon condition={domainRequest[col] === null}>
+                                                    {domainRequest[col].name}
+                                                </CondIcon>
                                             </td>
                                         {:else if col === 'verified_on_sedo_at'}
                                             <td>
-                                                {#if domainRequest[col] === null}
-                                                    <span style="color: red;">
-                                                        <i class="fa-sharp fa-solid fa-xmark"></i>
-                                                    </span>
-                                                {:else}
-                                                    <span style="color: green;">
-                                                        <i class="fa-solid fa-check"></i>
-                                                        &nbsp;
-                                                        {domainRequest[col]}
-                                                    </span>
-                                                {/if}
+                                                <CondIcon condition={domainRequest[col] === null}>
+                                                    {domainRequest[col]}
+                                                </CondIcon>
                                             </td>
                                         {:else if col === 'registered_at'}
                                             <td>
-                                                {#if domainRequest[col] === null}
-                                                    <span style="color: red;">
-                                                        <i class="fa-sharp fa-solid fa-xmark"></i>
-                                                    </span>
-                                                {:else}
-                                                    <span style="color: green;">
-                                                        {domainRequest[col]}
-                                                    </span>
-                                                {/if}
+                                                <CondIcon condition={domainRequest[col] === null}>
+                                                    {domainRequest[col]}
+                                                </CondIcon>
                                             </td>
                                         {:else if col === 'submitted_at'}
                                             <td>
-                                                {#if domainRequest[col] === null}
-                                                    <span style="color: red;">
-                                                        <i class="fa-sharp fa-solid fa-xmark"></i>
-                                                    </span>
-                                                {:else}
-                                                    <span style="color: green;">
-                                                        {domainRequest[col]}
-                                                    </span>
-                                                {/if}
+                                                <CondIcon condition={domainRequest[col] === null}>
+                                                    {moment(domainRequest['created_at']).format('DD/MM/YYYY')}
+                                                </CondIcon>
                                             </td>
                                         {:else if col === 'approved_at'}
                                             <td>
-                                                {#if domainRequest[col] === null}
-                                                    <span style="color: red;">
-                                                        <i class="fa-sharp fa-solid fa-xmark"></i>
-                                                    </span>
-                                                {:else}
-                                                    <span style="color: green;">
-                                                        {domainRequest[col]}
-                                                    </span>
-                                                {/if}
+                                                <CondIcon condition={domainRequest[col] === null}>
+                                                    {domainRequest[col]}
+                                                </CondIcon>
                                             </td>
                                         {:else}
                                             <td>
