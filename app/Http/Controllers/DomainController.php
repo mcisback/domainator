@@ -248,7 +248,7 @@ class DomainController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Domains Added To SEDO Successful',
+            'message' => "Domain \"$domain->domain\" Added on SEDO Successfully",
             'domains' => Domain::all(),
             'sedoDomains' => $response,
             'domainRequests' => DomainRegistrationRequest::all(),
@@ -263,14 +263,14 @@ class DomainController extends Controller
      * @param  \App\Models\Domain  $domain
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      */
-    public function sedoVerifyDomain(Request $request, Domain $domain, SedoAccount  $sedoAccount)
+    public function sedoVerifyDomain(Domain $domain, SedoAccount  $sedoAccount)
     {
         $domainRequest = $domain->domainRegistrationRequest;
 
         try {
             $namecheapApi = new NamecheapApi();
 
-            $response = $namecheapApi->addDNSRecordsToDomain($domain->domain, [
+            $namecheapResponse = $namecheapApi->addDNSRecordsToDomain($domain->domain, [
                 [
                     'HostName' => '@',
                     'RecordType' => 'TXT',
@@ -298,7 +298,7 @@ class DomainController extends Controller
             'success' => true,
             'message' => "Domain \"$domain->domain\" Verified on SEDO Successfully",
             'domainRequests' => DomainRegistrationRequest::all(),
-            'namecheapResponse' => $response,
+            'namecheapResponse' => $namecheapResponse,
         ]);
     }
 

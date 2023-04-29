@@ -157,10 +157,6 @@ function registerAllDomains() {
                 domain.registered = data.success
 
                 spinners.registerDomain = false
-
-                currentDomainRequest = {
-                    ...currentDomainRequest
-                }
             })
             .catch(err => {
                 spinners.domainsSpinner[domain.domain] = false
@@ -172,6 +168,10 @@ function registerAllDomains() {
 
                 spinners.registerDomain = false
             })
+    }).then(() => {
+        currentDomainRequest = {
+            ...currentDomainRequest
+        }
     })
 
 }

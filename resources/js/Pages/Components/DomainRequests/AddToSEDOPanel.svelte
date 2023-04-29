@@ -21,10 +21,10 @@ export let sedoLanguages = []
 
 export let form = {}
 
-let processableCount = 0
+let unprocessableCount = 0
 let domainsToProcessCount = 0
 
-let processableDomains = []
+let unprocessableDomains = []
 
 let doCheckAll = true
 let checkedDomains = {}
@@ -33,7 +33,7 @@ spinners['domainsSpinner'] = {}
 
 // Preprocess domains
 Object.entries(currentDomainRequest.domains).forEach(([index, domain]) => {
-    const {domain: domainName, registered, price, sedo_account} = domain;
+    const {domain: domainName, registered, price, sedo_account, verified_on_sedo_at} = domain;
 
     domain.toggled = true
     domain.isRegisteredButNotOnSEDO = domain.sedo_account === null && domain.registered
@@ -53,16 +53,16 @@ Object.entries(currentDomainRequest.domains).forEach(([index, domain]) => {
 
     domainsToProcess.push(domainName)
 
-    if(registered) {
-        processableCount++;
+    if(registered && sedo_account && !verified_on_sedo_at) {
+        unprocessableCount++;
 
-        processableDomains.push(domain)
+        unprocessableDomains.push(domain)
     } else {
         domainsToProcessCount++;
     }
 })
 
-console.log('Domains count: ', {processableCount, processableDomains, domainsToProcessCount})
+console.log('Domains count: ', {unprocessableCount, unprocessableDomains, domainsToProcessCount})
 
 console.log('Checked domains: ', {checkedDomains, domainsToProcess})
 
@@ -137,14 +137,10 @@ function pageAddDomainsToSEDO() {
                 spinners.domainsSpinner[domain.domain] = false
 
                 form.success = data.success
-                form.message = data.message
+                form.message += data.message + `\n<br>`
                 domainRequests = data.domainRequests
 
                 domain = updateCurrentDomain(domain, data.domainRequests)
-
-                currentDomainRequest = {
-                    ...currentDomainRequest
-                }
             })
             .catch(err => {
                 spinners.addDomainToSEDO = false
@@ -155,13 +151,17 @@ function pageAddDomainsToSEDO() {
 
                 console.log('Err: ', err.response.data)
             })
+    }).then(() => {
+        currentDomainRequest = {
+            ...currentDomainRequest
+        }
     })
 }
 
 </script>
 
 {#key currentDomainRequest}
-    {#if processableCount > 0}
+    {#if unprocessableCount > 0}
         <div class="row mb-3">
             <AlertBox type="warning">
                 <strong>&#x26A0; Note:</strong> Adding domain To SEDO does not have an immediate effect as domain first have to pass a couple of checks before they get added to an account. You will be notified via eMail in case any checks fail.
@@ -181,7 +181,7 @@ function pageAddDomainsToSEDO() {
                         id={`domainsToProcessAll`}
                         bind:checked={doCheckAll}
                         on:change={checkAll}
-                        disabled={processableCount === currentDomainRequest.domains.length}}
+                        disabled={unprocessableCount === currentDomainRequest.domains.length}
                     >
                 </th>
                 <th>Domain</th>
@@ -195,7 +195,15 @@ function pageAddDomainsToSEDO() {
                         {#if spinners.domainsSpinner[domain.domain]}
                             <Spinner />
                         {:else}
-                            <input type="checkbox" name={`domainsToProcess[${i}]`} id={`domainsToProcess[${i}]`} disabled={!domain.sedo_account} bind:group={domainsToProcess} value={domain.domain} checked={domainsToProcess.includes(domain.domain)} on:change={() => console.log('Checkbox domain: ', {index, domain: domain.domain, domainsToProcess, checkedDomains})}>
+                            <input
+                                type="checkbox" name={`domainsToProcess[${i}]`}
+                                id={`domainsToProcess[${i}]`}
+                                disabled={domain.sedo_account || null}
+                                bind:group={domainsToProcess}
+                                value={domain.domain}
+                                checked={domainsToProcess.includes(domain.domain)}
+                                on:change={() => console.log('Checkbox domain: ', {index, domain: domain.domain, domainsToProcess, checkedDomains})}
+                            >
                         {/if}
                     </td>
 
@@ -255,7 +263,7 @@ function pageAddDomainsToSEDO() {
     <div class="row text-center">
         <button class="btn btn-primary btn-red"
                 on:click={() => pageAddDomainsToSEDO()}
-                disabled={!(currentDomainRequest.sedo_account === null && processableCount >= 1)}>
+                disabled={unprocessableCount === currentDomainRequest.domains.length || null}>
             {#if spinners.addDomainToSEDO}
                 <i class="fa-solid fa-plus"></i>
                 <Spinner />

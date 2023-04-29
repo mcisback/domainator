@@ -132,14 +132,10 @@ function pageVerifyDomainsOnSEDO() {
                 spinners.domainsSpinner[domain.domain] = false
 
                 form.success = data.success
-                form.message = data.message
+                form.message += data.message + `\n<br>`
                 domainRequests = data.domainRequests
 
                 domain = updateCurrentDomain(domain, data.domainRequest)
-
-                currentDomainRequest = {
-                    ...currentDomainRequest
-                }
             })
             .catch(err => {
                 spinners.verifyDomainsOnSEDO = false
@@ -150,6 +146,10 @@ function pageVerifyDomainsOnSEDO() {
 
                 console.log('Err: ', err.response.data)
             })
+    }).then(() => {
+        currentDomainRequest = {
+            ...currentDomainRequest
+        }
     })
 }
 
